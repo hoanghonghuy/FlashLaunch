@@ -25,7 +25,7 @@ jobs:
         run: |
           ./scripts/package-and-qa.ps1 -Configuration Release -Runtime win-x64
 
-      - name: Create release zips & notes
+      - name: "Create release zips & notes"
         shell: pwsh
         run: |
           $tag = "${{ github.ref_name }}"
