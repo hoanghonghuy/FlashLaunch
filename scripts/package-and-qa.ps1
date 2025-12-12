@@ -7,12 +7,14 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $solution = Join-Path $root "..\FlashLaunch.sln"
+$uiProject = Join-Path $root "..\FlashLaunch.UI\FlashLaunch.UI.csproj"
 $artifacts = Join-Path $root "..\artifacts"
 $publishDir = Join-Path $artifacts "publish"
 $logsDir = Join-Path $artifacts "logs"
 
 Write-Host "=== FlashLaunch packaging script ==="
 Write-Host "Solution: $solution"
+Write-Host "UI Project: $uiProject"
 
 # 1. Clean artifacts
 if (Test-Path $artifacts) {
@@ -23,7 +25,7 @@ New-Item -ItemType Directory -Path $logsDir | Out-Null
 
 # 2. Restore & publish self-contained build
 Write-Host "Publishing self-contained build..."
-dotnet publish $solution `
+dotnet publish $uiProject `
     -c $Configuration `
     -r $Runtime `
     --self-contained true `
