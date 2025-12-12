@@ -28,21 +28,35 @@ jobs:
           cd $env:GITHUB_WORKSPACE
           ./scripts/package-and-qa.ps1 -Configuration Release -Runtime win-x64
 
-      - name: Create release zip
+      - name: Create release zips
         shell: pwsh
         run: |
           $tag = "${{ github.ref_name }}"
-          $zip = "artifacts/flashlaunch-$tag-win-x64.zip"
-          if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path artifacts/publish/* -DestinationPath $zip
+          $standaloneZip = "artifacts/flashlaunch-$tag-standalone-win-x64.zip"
+          $portableZip = "artifacts/flashlaunch-$tag-portable-win-x64.zip"
+
+          if (Test-Path $standaloneZip) { Remove-Item $standaloneZip -Force }
+          if (Test-Path $portableZip) { Remove-Item $portableZip -Force }
+
+          Compress-Archive -Path artifacts/publish-standalone/* -DestinationPath $standaloneZip
+          Compress-Archive -Path artifacts/publish-portable/* -DestinationPath $portableZip
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          name: FlashLaunch ${{ github.ref_name }}
+          body: |
+            ## Tải xuống
+            - Standalone (khuyến nghị): `flashlaunch-${{ github.ref_name }}-standalone-win-x64.zip` (không cần cài .NET)
+            - Portable: `flashlaunch-${{ github.ref_name }}-portable-win-x64.zip` (cần .NET Desktop Runtime)
+
+            ## Ghi chú
+            - Bản Portable nhẹ hơn nhưng yêu cầu máy đã có .NET runtime phù hợp.
+            - Xem `QA-CHECKLIST.md` để test nhanh trước khi phát hành.
           files: |
-            artifacts/flashlaunch-${{ github.ref_name }}-win-x64.zip
+            artifacts/flashlaunch-${{ github.ref_name }}-standalone-win-x64.zip
+            artifacts/flashlaunch-${{ github.ref_name }}-portable-win-x64.zip
             artifacts/QA-CHECKLIST.md
             artifacts/MSIX-INSTRUCTIONS.txt
             artifacts/SQUIRREL-INSTRUCTIONS.txt

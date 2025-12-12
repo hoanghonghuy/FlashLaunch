@@ -6,19 +6,32 @@ title: Packaging & QA Checklist
 
 ```powershell
 $solution = "d:\workspace\project\tools\FlashLaunch\FlashLaunch.sln"
-$publishDir = "d:\workspace\project\tools\FlashLaunch\artifacts\publish"
-dotnet publish $solution `
+$publishStandaloneDir = "d:\workspace\project\tools\FlashLaunch\artifacts\publish-standalone"
+$publishPortableDir = "d:\workspace\project\tools\FlashLaunch\artifacts\publish-portable"
+
+# Standalone (self-contained)
+dotnet publish "d:\workspace\project\tools\FlashLaunch\FlashLaunch.UI\FlashLaunch.UI.csproj" `
     -c Release `
     -r win-x64 `
     --self-contained true `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:PublishTrimmed=false `
-    -o $publishDir
+    -o $publishStandaloneDir
+
+# Portable (framework-dependent)
+dotnet publish "d:\workspace\project\tools\FlashLaunch\FlashLaunch.UI\FlashLaunch.UI.csproj" `
+    -c Release `
+    -r win-x64 `
+    --self-contained false `
+    -p:PublishSingleFile=true `
+    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:PublishTrimmed=false `
+    -o $publishPortableDir
 ```
 
 ## 2. Đóng gói MSIX (tham khảo doc chính thức)
-1. Mở **MSIX Packaging Tool** → *Application package* → chọn thư mục `$publishDir`.
+1. Mở **MSIX Packaging Tool** → *Application package* → chọn thư mục `$publishStandaloneDir`.
 2. Khai báo thông tin Publisher, Version, và Capability theo yêu cầu.
 3. Ký gói bằng chứng chỉ nội bộ (PowerShell `New-SelfSignedCertificate`, sau đó `signtool sign`).
 4. Kiểm thử cài đặt bằng `Add-AppxPackage .\FlashLaunch.msix` trước khi phân phối.
@@ -32,7 +45,7 @@ $setupDir = "d:\workspace\project\tools\FlashLaunch\artifacts\squirrel"
     --releaseDir $setupDir `
     --loadingGif assets\\splash.gif
 ```
-- File `FlashLaunch.nuspec` nên tham chiếu tới binaries từ `$publishDir`.
+- File `FlashLaunch.nuspec` nên tham chiếu tới binaries từ `$publishStandaloneDir`.
 - Ký file Setup.exe bằng `signtool` sau khi tạo.
 
 ## 4. Logging & Perf verification

@@ -9,7 +9,8 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $solution = Join-Path $root "..\FlashLaunch.sln"
 $uiProject = Join-Path $root "..\FlashLaunch.UI\FlashLaunch.UI.csproj"
 $artifacts = Join-Path $root "..\artifacts"
-$publishDir = Join-Path $artifacts "publish"
+$standaloneDir = Join-Path $artifacts "publish-standalone"
+$portableDir = Join-Path $artifacts "publish-portable"
 $logsDir = Join-Path $artifacts "logs"
 
 Write-Host "=== FlashLaunch packaging script ==="
@@ -20,11 +21,12 @@ Write-Host "UI Project: $uiProject"
 if (Test-Path $artifacts) {
     Remove-Item $artifacts -Recurse -Force
 }
-New-Item -ItemType Directory -Path $publishDir | Out-Null
+New-Item -ItemType Directory -Path $standaloneDir | Out-Null
+New-Item -ItemType Directory -Path $portableDir | Out-Null
 New-Item -ItemType Directory -Path $logsDir | Out-Null
 
-# 2. Restore & publish self-contained build
-Write-Host "Publishing self-contained build..."
+# 2. Restore & publish standalone build (self-contained, single-file)
+Write-Host "Publishing standalone build (self-contained)..."
 dotnet publish $uiProject `
     -c $Configuration `
     -r $Runtime `
@@ -32,7 +34,18 @@ dotnet publish $uiProject `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:PublishTrimmed=false `
-    -o $publishDir
+    -o $standaloneDir
+
+# 2b. Publish portable build (framework-dependent)
+Write-Host "Publishing portable build (framework-dependent)..."
+dotnet publish $uiProject `
+    -c $Configuration `
+    -r $Runtime `
+    --self-contained false `
+    -p:PublishSingleFile=true `
+    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:PublishTrimmed=false `
+    -o $portableDir
 
 # 3. Capture perf/error logs sample (optional)
 $logSource = Join-Path $env:APPDATA "FlashLaunch\logs"
@@ -44,7 +57,7 @@ if (Test-Path $logSource) {
 $msixHint = @"
 MSIX Packaging:
 1. Open MSIX Packaging Tool.
-2. Input source: $publishDir
+2. Input source: $standaloneDir
 3. Follow docs/PackagingQA.md.
 "@
 $msixHint | Out-File (Join-Path $artifacts "MSIX-INSTRUCTIONS.txt") -Encoding UTF8
