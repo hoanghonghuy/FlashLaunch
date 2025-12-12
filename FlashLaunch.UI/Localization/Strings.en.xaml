@@ -1,0 +1,126 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Common -->
+  <sys:String x:Key="Common_Ok">OK</sys:String>
+  <sys:String x:Key="Common_Cancel">Cancel</sys:String>
+  <sys:String x:Key="Common_Add">Add</sys:String>
+  <sys:String x:Key="Common_Remove">Remove</sys:String>
+
+  <!-- Settings -->
+  <sys:String x:Key="Settings_Title">FlashLaunch Settings</sys:String>
+  <sys:String x:Key="Settings_GlobalHotkey">Global Hotkey</sys:String>
+  <sys:String x:Key="Settings_Hotkey_Hint">Example: Alt + Space</sys:String>
+  <sys:String x:Key="Settings_Plugins">Plugins</sys:String>
+  <sys:String x:Key="Settings_WebSearch_Providers">Web search shortcuts</sys:String>
+  <sys:String x:Key="Settings_WebSearch_Google">g - Google search</sys:String>
+  <sys:String x:Key="Settings_WebSearch_YouTube">yt - YouTube search</sys:String>
+  <sys:String x:Key="Settings_WebSearch_DuckDuckGo">ddg - DuckDuckGo search</sys:String>
+
+  <sys:String x:Key="Settings_SystemCommands">System commands</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Shutdown">&gt; shutdown - Power off the computer</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Restart">&gt; restart - Restart the computer</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Sleep">&gt; sleep - Put the computer to sleep</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Lock">&gt; lock - Lock the workstation</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_EmptyRecycleBin">&gt; empty trash - Empty Recycle Bin</sys:String>
+
+  <sys:String x:Key="Settings_AdditionalAppFolders">Additional App Folders</sys:String>
+  <sys:String x:Key="Settings_Browse">Browse...</sys:String>
+  <sys:String x:Key="Settings_AdditionalFolders_Empty">No additional folders yet.</sys:String>
+  <sys:String x:Key="Settings_BrowseDialog_Description">Select a folder that contains additional applications.</sys:String>
+  <sys:String x:Key="Settings_RefreshIndex">Refresh Index</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs">Reset Usage + Logs</sys:String>
+  <sys:String x:Key="Settings_IconCache_Enable">Persist icon cache to disk (faster launch)</sys:String>
+  <sys:String x:Key="Settings_IconCache_Clear">Clear icon cache</sys:String>
+  <sys:String x:Key="Settings_Cancel">Cancel</sys:String>
+  <sys:String x:Key="Settings_Save">Save</sys:String>
+  <sys:String x:Key="Settings_Apply">Apply</sys:String>
+  <sys:String x:Key="Settings_Ok">OK</sys:String>
+  <sys:String x:Key="Settings_Language">Language</sys:String>
+  <sys:String x:Key="Settings_Language_English">English</sys:String>
+  <sys:String x:Key="Settings_Language_Vietnamese">Tiếng Việt</sys:String>
+
+  <sys:String x:Key="Settings_Theme">Theme</sys:String>
+  <sys:String x:Key="Settings_Theme_System">Use system theme</sys:String>
+  <sys:String x:Key="Settings_Theme_Light">Light</sys:String>
+  <sys:String x:Key="Settings_Theme_Dark">Dark</sys:String>
+
+  <sys:String x:Key="Settings_ResultDisplay">Results display</sys:String>
+  <sys:String x:Key="Settings_ShowResultIcons">Show icons in results</sys:String>
+  <sys:String x:Key="Settings_ShowPluginBadges">Show plugin badges</sys:String>
+
+  <sys:String x:Key="Settings_Tab_General">General</sys:String>
+  <sys:String x:Key="Settings_Tab_Appearance">Appearance</sys:String>
+  <sys:String x:Key="Settings_Tab_Plugins">Plugins &amp; commands</sys:String>
+  <sys:String x:Key="Settings_Tab_Advanced">Folders &amp; maintenance</sys:String>
+
+  <!-- Settings validation / messages -->
+  <sys:String x:Key="Settings_Hotkey_Invalid">Hotkey format is invalid. Example: Alt + Space</sys:String>
+  <sys:String x:Key="Settings_Hotkey_UpdateFailed">Unable to register new hotkey.</sys:String>
+  <sys:String x:Key="Settings_Hotkey_InUse">Another app is already using this hotkey. Pick a different combination.</sys:String>
+  <sys:String x:Key="Settings_Hotkey_Win32Error">Unable to register the hotkey (Win32 error {0}).</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Added">Added new folder.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_EmptyInput">Please enter a folder path.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_NotExists">Folder does not exist.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Duplicate">Folder already exists in the list.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Removed">Removed {0}.</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs_Success">Usage cache &amp; logs cleared</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs_Failed">Unable to reset usage/logs.</sys:String>
+  <sys:String x:Key="Settings_IconCache_Cleared">Icon cache cleared.</sys:String>
+  <sys:String x:Key="Settings_IconCache_ClearFailed">Could not clear icon cache.</sys:String>
+  <sys:String x:Key="Settings_AppIndex_Refreshed">App index refreshed</sys:String>
+
+  <!-- Confirm dialog -->
+  <sys:String x:Key="Confirm_SystemCommand_Title">Confirm system command</sys:String>
+  <sys:String x:Key="Confirm_SystemCommand_Message">Are you sure you want to execute &quot;{0}&quot;?</sys:String>
+
+  <sys:String x:Key="Main_Placeholder">Type anything...</sys:String>
+  <sys:String x:Key="Main_Loading">Searching...</sys:String>
+  <sys:String x:Key="Main_EmptyState">No matches yet. Try another keyword.</sys:String>
+  <sys:String x:Key="Main_HotkeyHint">Alt + Space</sys:String>
+
+  <sys:String x:Key="Status_SettingsApplied">Settings applied</sys:String>
+  <sys:String x:Key="Status_Error_ExecuteFailed">Could not run {0}</sys:String>
+  <sys:String x:Key="Status_Calculator_Copied">Copied {0} to clipboard</sys:String>
+  <sys:String x:Key="Status_Web_Launching">Launching browser for {0}</sys:String>
+  <sys:String x:Key="Status_System_Executed">{0} command executed</sys:String>
+  <sys:String x:Key="Status_App_Launched">{0} launched</sys:String>
+  <sys:String x:Key="Status_OpenedLocation">Opened location for {0}</sys:String>
+  <sys:String x:Key="Status_Error_AppNotFound">Application not found: {0}</sys:String>
+  <sys:String x:Key="Status_Error_WebLaunchFailed">Could not launch browser for {0}</sys:String>
+  <sys:String x:Key="Status_Error_SystemCommandFailed">Could not execute system command {0}</sys:String>
+
+  <!-- Plugins -->
+  <sys:String x:Key="Plugin_Applications_Name">Applications</sys:String>
+  <sys:String x:Key="Plugin_Applications_Description">Launch installed applications</sys:String>
+  <sys:String x:Key="Plugin_Applications_MostUsedSubtitle">Most used • {0}</sys:String>
+
+  <sys:String x:Key="Plugin_Calculator_Name">Calculator</sys:String>
+  <sys:String x:Key="Plugin_Calculator_Description">Evaluate mathematical expressions</sys:String>
+
+  <sys:String x:Key="Plugin_Web_Name">Web</sys:String>
+  <sys:String x:Key="Plugin_Web_Description">Search the web via shortcuts</sys:String>
+  <sys:String x:Key="Plugin_Web_SearchTitle">Search {0} for &quot;{1}&quot;</sys:String>
+  <sys:String x:Key="Plugin_Web_Subtitle">Open {0} search</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_Google">Google</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_YouTube">YouTube</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_DuckDuckGo">DuckDuckGo</sys:String>
+
+  <sys:String x:Key="Plugin_System_Name">System</sys:String>
+  <sys:String x:Key="Plugin_System_Description">Execute operating system commands</sys:String>
+  <sys:String x:Key="Plugin_System_Shutdown_Title">Shutdown</sys:String>
+  <sys:String x:Key="Plugin_System_Shutdown_Description">Power off the computer</sys:String>
+  <sys:String x:Key="Plugin_System_Restart_Title">Restart</sys:String>
+  <sys:String x:Key="Plugin_System_Restart_Description">Restart the computer</sys:String>
+  <sys:String x:Key="Plugin_System_Sleep_Title">Sleep</sys:String>
+  <sys:String x:Key="Plugin_System_Sleep_Description">Put the computer to sleep</sys:String>
+  <sys:String x:Key="Plugin_System_Lock_Title">Lock</sys:String>
+  <sys:String x:Key="Plugin_System_Lock_Description">Lock the workstation</sys:String>
+  <sys:String x:Key="Plugin_System_EmptyRecycleBin_Title">Empty Recycle Bin</sys:String>
+  <sys:String x:Key="Plugin_System_EmptyRecycleBin_Description">Permanently delete recycle bin contents</sys:String>
+
+  <sys:String x:Key="Tray_Show">Show</sys:String>
+  <sys:String x:Key="Tray_Settings">Settings</sys:String>
+  <sys:String x:Key="Tray_Exit">Exit</sys:String>
+</ResourceDictionary>
+

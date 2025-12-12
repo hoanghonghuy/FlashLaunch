@@ -1,0 +1,126 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Common -->
+  <sys:String x:Key="Common_Ok">OK</sys:String>
+  <sys:String x:Key="Common_Cancel">Hủy</sys:String>
+  <sys:String x:Key="Common_Add">Thêm</sys:String>
+  <sys:String x:Key="Common_Remove">Xóa</sys:String>
+
+  <!-- Settings -->
+  <sys:String x:Key="Settings_Title">Cài đặt FlashLaunch</sys:String>
+  <sys:String x:Key="Settings_GlobalHotkey">Phím tắt toàn hệ thống</sys:String>
+  <sys:String x:Key="Settings_Hotkey_Hint">Ví dụ: Alt + Space</sys:String>
+  <sys:String x:Key="Settings_Plugins">Plugins</sys:String>
+  <sys:String x:Key="Settings_WebSearch_Providers">Tìm kiếm web (phím tắt)</sys:String>
+  <sys:String x:Key="Settings_WebSearch_Google">g  - Tìm kiếm trên Google</sys:String>
+  <sys:String x:Key="Settings_WebSearch_YouTube">yt  - Tìm kiếm trên YouTube</sys:String>
+  <sys:String x:Key="Settings_WebSearch_DuckDuckGo">ddg  - Tìm kiếm trên DuckDuckGo</sys:String>
+
+  <sys:String x:Key="Settings_SystemCommands">Lệnh hệ thống</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Shutdown">&gt; shutdown  - Tắt máy</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Restart">&gt; restart  - Khởi động lại máy tính</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Sleep">&gt; sleep  - Đưa máy tính vào chế độ ngủ</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_Lock">&gt; lock  - Khóa phiên làm việc</sys:String>
+  <sys:String x:Key="Settings_SystemCommand_EmptyRecycleBin">&gt; empty trash  - Dọn thùng rác</sys:String>
+
+  <sys:String x:Key="Settings_AdditionalAppFolders">Thư mục ứng dụng bổ sung</sys:String>
+  <sys:String x:Key="Settings_Browse">Chọn thư mục...</sys:String>
+  <sys:String x:Key="Settings_AdditionalFolders_Empty">Chưa có thư mục bổ sung.</sys:String>
+  <sys:String x:Key="Settings_BrowseDialog_Description">Chọn thư mục chứa ứng dụng bổ sung.</sys:String>
+  <sys:String x:Key="Settings_RefreshIndex">Làm mới chỉ mục</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs">Xóa thống kê + log</sys:String>
+  <sys:String x:Key="Settings_IconCache_Enable">Lưu icon xuống đĩa (mở nhanh hơn)</sys:String>
+  <sys:String x:Key="Settings_IconCache_Clear">Xóa cache icon</sys:String>
+  <sys:String x:Key="Settings_Cancel">Hủy</sys:String>
+  <sys:String x:Key="Settings_Save">Lưu</sys:String>
+  <sys:String x:Key="Settings_Apply">Áp dụng</sys:String>
+  <sys:String x:Key="Settings_Ok">OK</sys:String>
+  <sys:String x:Key="Settings_Language">Ngôn ngữ</sys:String>
+  <sys:String x:Key="Settings_Language_English">English</sys:String>
+  <sys:String x:Key="Settings_Language_Vietnamese">Tiếng Việt</sys:String>
+
+  <sys:String x:Key="Settings_Theme">Giao diện</sys:String>
+  <sys:String x:Key="Settings_Theme_System">Theo hệ thống</sys:String>
+  <sys:String x:Key="Settings_Theme_Light">Sáng</sys:String>
+  <sys:String x:Key="Settings_Theme_Dark">Tối</sys:String>
+
+  <sys:String x:Key="Settings_ResultDisplay">Hiển thị kết quả</sys:String>
+  <sys:String x:Key="Settings_ShowResultIcons">Hiển thị icon trong kết quả</sys:String>
+  <sys:String x:Key="Settings_ShowPluginBadges">Hiển thị nhãn plugin</sys:String>
+
+  <sys:String x:Key="Settings_Tab_General">Cơ bản</sys:String>
+  <sys:String x:Key="Settings_Tab_Appearance">Giao diện</sys:String>
+  <sys:String x:Key="Settings_Tab_Plugins">Plugins &amp; lệnh</sys:String>
+  <sys:String x:Key="Settings_Tab_Advanced">Thư mục &amp; bảo trì</sys:String>
+
+  <!-- Settings validation / messages -->
+  <sys:String x:Key="Settings_Hotkey_Invalid">Định dạng hotkey không hợp lệ. Ví dụ: Alt + Space</sys:String>
+  <sys:String x:Key="Settings_Hotkey_UpdateFailed">Không thể đăng ký hotkey mới.</sys:String>
+  <sys:String x:Key="Settings_Hotkey_InUse">Phím tắt này đang bị ứng dụng khác sử dụng. Vui lòng chọn tổ hợp khác.</sys:String>
+  <sys:String x:Key="Settings_Hotkey_Win32Error">Không thể đăng ký hotkey (mã lỗi Win32 {0}).</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Added">Đã thêm thư mục mới.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_EmptyInput">Vui lòng nhập đường dẫn thư mục.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_NotExists">Thư mục không tồn tại.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Duplicate">Thư mục đã tồn tại trong danh sách.</sys:String>
+  <sys:String x:Key="Settings_CustomDir_Removed">Đã xoá {0}.</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs_Success">Usage cache &amp; logs đã được xóa</sys:String>
+  <sys:String x:Key="Settings_ResetUsageLogs_Failed">Không thể reset usage/logs.</sys:String>
+  <sys:String x:Key="Settings_IconCache_Cleared">Đã xoá cache icon.</sys:String>
+  <sys:String x:Key="Settings_IconCache_ClearFailed">Không thể xoá cache icon.</sys:String>
+  <sys:String x:Key="Settings_AppIndex_Refreshed">Đã làm mới chỉ mục ứng dụng</sys:String>
+
+  <!-- Confirm dialog -->
+  <sys:String x:Key="Confirm_SystemCommand_Title">Xác nhận lệnh hệ thống</sys:String>
+  <sys:String x:Key="Confirm_SystemCommand_Message">Bạn có chắc muốn thực thi &quot;{0}&quot;?</sys:String>
+
+  <sys:String x:Key="Main_Placeholder">Gõ để tìm kiếm...</sys:String>
+  <sys:String x:Key="Main_Loading">Đang tìm kiếm...</sys:String>
+  <sys:String x:Key="Main_EmptyState">Chưa có kết quả. Hãy thử từ khóa khác.</sys:String>
+  <sys:String x:Key="Main_HotkeyHint">Alt + Space</sys:String>
+
+  <sys:String x:Key="Status_SettingsApplied">Đã áp dụng cài đặt</sys:String>
+  <sys:String x:Key="Status_Error_ExecuteFailed">Không thể chạy {0}</sys:String>
+  <sys:String x:Key="Status_Calculator_Copied">Đã copy {0} vào clipboard</sys:String>
+  <sys:String x:Key="Status_Web_Launching">Đang mở trình duyệt với {0}</sys:String>
+  <sys:String x:Key="Status_System_Executed">Đã thực thi lệnh {0}</sys:String>
+  <sys:String x:Key="Status_App_Launched">Đã chạy {0}</sys:String>
+  <sys:String x:Key="Status_OpenedLocation">Đã mở vị trí của {0}</sys:String>
+  <sys:String x:Key="Status_Error_AppNotFound">Không tìm thấy ứng dụng {0}</sys:String>
+  <sys:String x:Key="Status_Error_WebLaunchFailed">Không thể mở trình duyệt cho {0}</sys:String>
+  <sys:String x:Key="Status_Error_SystemCommandFailed">Không thể thực thi lệnh hệ thống {0}</sys:String>
+
+  <!-- Plugins -->
+  <sys:String x:Key="Plugin_Applications_Name">Ứng dụng</sys:String>
+  <sys:String x:Key="Plugin_Applications_Description">Mở các ứng dụng đã cài đặt</sys:String>
+  <sys:String x:Key="Plugin_Applications_MostUsedSubtitle">Dùng nhiều nhất • {0}</sys:String>
+
+  <sys:String x:Key="Plugin_Calculator_Name">Máy tính</sys:String>
+  <sys:String x:Key="Plugin_Calculator_Description">Tính toán biểu thức toán học</sys:String>
+
+  <sys:String x:Key="Plugin_Web_Name">Web</sys:String>
+  <sys:String x:Key="Plugin_Web_Description">Tìm kiếm web bằng shortcut</sys:String>
+  <sys:String x:Key="Plugin_Web_SearchTitle">Tìm &quot;{1}&quot; trên {0}</sys:String>
+  <sys:String x:Key="Plugin_Web_Subtitle">Mở tìm kiếm {0}</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_Google">Google</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_YouTube">YouTube</sys:String>
+  <sys:String x:Key="Plugin_Web_Provider_DuckDuckGo">DuckDuckGo</sys:String>
+
+  <sys:String x:Key="Plugin_System_Name">Hệ thống</sys:String>
+  <sys:String x:Key="Plugin_System_Description">Thực thi các lệnh hệ thống</sys:String>
+  <sys:String x:Key="Plugin_System_Shutdown_Title">Tắt máy</sys:String>
+  <sys:String x:Key="Plugin_System_Shutdown_Description">Tắt nguồn máy tính</sys:String>
+  <sys:String x:Key="Plugin_System_Restart_Title">Khởi động lại</sys:String>
+  <sys:String x:Key="Plugin_System_Restart_Description">Khởi động lại máy tính</sys:String>
+  <sys:String x:Key="Plugin_System_Sleep_Title">Ngủ</sys:String>
+  <sys:String x:Key="Plugin_System_Sleep_Description">Đưa máy tính vào chế độ ngủ</sys:String>
+  <sys:String x:Key="Plugin_System_Lock_Title">Khóa</sys:String>
+  <sys:String x:Key="Plugin_System_Lock_Description">Khóa phiên làm việc</sys:String>
+  <sys:String x:Key="Plugin_System_EmptyRecycleBin_Title">Dọn thùng rác</sys:String>
+  <sys:String x:Key="Plugin_System_EmptyRecycleBin_Description">Xóa vĩnh viễn nội dung thùng rác</sys:String>
+
+  <sys:String x:Key="Tray_Show">Hiện cửa sổ</sys:String>
+  <sys:String x:Key="Tray_Settings">Cài đặt</sys:String>
+  <sys:String x:Key="Tray_Exit">Thoát</sys:String>
+</ResourceDictionary>
+

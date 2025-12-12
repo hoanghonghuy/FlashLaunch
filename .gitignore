@@ -1,0 +1,53 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# VS / Rider cache
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+.nuget/
+
+# Logs / diagnostics
+*.log
+*.svclog
+*.etl
+imgui.ini
+
+# Generated files
+Generated_Code/
+TestResults/
+BenchmarkDotNet.Artifacts/
+
+# OS junk
+.DS_Store
+Thumbs.db
+*.tmp
+~$*
+
+# Rider / ReSharper / VS Code
+.ReSharper*/
+*_ReSharper*/
+*.DotSettings.user
+.idea/
+.vscode/
+
+# Publish artifacts
+publish/
+artifacts/
+
+# Local configuration / secrets
+appsettings.Development.json
+secrets.json
+UserSecrets/

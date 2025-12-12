@@ -1,0 +1,274 @@
+﻿<Window x:Class="FlashLaunch.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:FlashLaunch.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="FlashLaunch"
+        Width="720"
+        Height="420"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        PreviewKeyDown="OnWindowPreviewKeyDown"
+        KeyDown="OnWindowKeyDown">
+    <Border Background="{DynamicResource ShellBackgroundBrush}"
+            CornerRadius="28"
+            Padding="28"
+            Effect="{DynamicResource DropShadow}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Height="60"
+                    Background="{DynamicResource PanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource PanelBorderBrush}"
+                    BorderThickness="1.5"
+                    CornerRadius="18"
+                    Padding="20,0"
+                    HorizontalAlignment="Stretch">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="⌘"
+                               FontSize="18"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource AccentBrush}"
+                               Margin="0,0,12,0" />
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="SearchBox"
+                                 Text="{Binding QueryText, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="20"
+                                 Foreground="{DynamicResource MainSearchForegroundBrush}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 VerticalContentAlignment="Center"
+                                 CaretBrush="{DynamicResource MainSearchForegroundBrush}"
+                                 FocusVisualStyle="{x:Null}" />
+                        <TextBlock Text="{DynamicResource Main_Placeholder}"
+                                   FontSize="20"
+                                   Foreground="{DynamicResource MainSearchPlaceholderBrush}"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding HotkeyHint}"
+                               FontSize="14"
+                               Foreground="{DynamicResource MainHotkeyHintBrush}"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="TextBlock" x:Key="EmptyStateStyle">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Foreground" Value="{DynamicResource MainEmptyStateBrush}" />
+                        <Setter Property="FontSize" Value="16" />
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </Style>
+                </Grid.Resources>
+                <ListBox x:Name="ResultsList"
+                         Grid.Row="0"
+                         ItemsSource="{Binding Results}"
+                         SelectedItem="{Binding SelectedResult}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Padding="0"
+                         Margin="0"
+                         VerticalContentAlignment="Stretch"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         MouseDoubleClick="OnResultsDoubleClick">
+                <ListBox.Resources>
+                    <Style TargetType="ScrollBar"
+                           BasedOn="{StaticResource MainVerticalScrollBarStyle}" />
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Margin" Value="0,0,0,10" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Container"
+                                            Background="{DynamicResource PanelBackgroundBrush}"
+                                            CornerRadius="14"
+                                            BorderBrush="{DynamicResource PanelBorderBrush}"
+                                            BorderThickness="1">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Container" Property="Background" Value="{DynamicResource MainResultItemHoverBackgroundBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Container" Property="Background" Value="{DynamicResource MainResultItemSelectedBackgroundBrush}" />
+                                            <Setter TargetName="Container" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.Resources>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:SearchResultViewModel}">
+                        <Grid Margin="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Icon -->
+                            <Image Grid.Column="0"
+                                   Width="28"
+                                   Height="28"
+                                   Margin="0,0,12,0"
+                                   VerticalAlignment="Center">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasIcon}" Value="True" />
+                                                    <Condition Binding="{Binding DataContext.ShowResultIcons, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Setter Property="Source">
+                                                    <Setter.Value>
+                                                        <Binding Path="Icon" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+
+                            <!-- Text -->
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <TextBlock Text="{Binding Title}"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MainResultTitleBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Subtitle}"
+                                           FontSize="14"
+                                           Foreground="{DynamicResource MainResultSubtitleBrush}"
+                                           Margin="0,4,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <Border Grid.Column="2"
+                                    Background="{DynamicResource MainResultBadgeBackgroundBrush}"
+                                    BorderBrush="{DynamicResource MainResultBadgeBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="10,4"
+                                    VerticalAlignment="Center"
+                                    Margin="12,0,0,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.ShowPluginBadges, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding PluginBadge}"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource MainResultBadgeForegroundBrush}"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ProgressBar Width="200"
+                                 Height="4"
+                                 IsIndeterminate="True"
+                                 Foreground="{StaticResource AccentBrush}"
+                                 Background="{DynamicResource MainLoadingBarBackgroundBrush}" />
+                    <TextBlock Text="{DynamicResource Main_Loading}"
+                               Margin="0,12,0,0"
+                               Foreground="{DynamicResource MainLoadingTextBrush}"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource Main_EmptyState}">
+                    <TextBlock.Style>
+                        <Style BasedOn="{StaticResource EmptyStateStyle}"
+                               TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsLoading}"
+                                                   Value="False" />
+                                        <Condition Binding="{Binding Results.Count}"
+                                                   Value="0" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Border Grid.Row="1"
+                        Background="{DynamicResource MainStatusBackgroundBrush}"
+                        BorderBrush="{DynamicResource MainStatusBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="16"
+                        Margin="0,16,0,0"
+                        Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Foreground="{DynamicResource MainStatusForegroundBrush}"
+                               FontSize="14" />
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,325 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Light theme colors (off-white/xám dịu mắt) -->
+  <Color x:Key="ShellBackgroundColor">#F3F4F6</Color>
+  <Color x:Key="PanelBackgroundColor">#FFFFFF</Color>
+  <Color x:Key="PanelBorderColor">#E5E7EB</Color>
+  <Color x:Key="CardBackgroundColor">#F9FAFB</Color>
+  <Color x:Key="CardHighlightColor">#F9FAFB</Color>
+  <Color x:Key="AccentColor">#2563EB</Color>
+  <Color x:Key="AccentMutedColor">#1D4ED8</Color>
+
+  <!-- Colors used by default WPF templates (ComboBox, ScrollBar, etc.) -->
+  <Color x:Key="ControlLightColor">#FFFFFF</Color>
+  <Color x:Key="ControlMediumColor">#F3F4F6</Color>
+  <Color x:Key="BorderLightColor">#E5E7EB</Color>
+  <Color x:Key="BorderDarkColor">#D1D5DB</Color>
+  <Color x:Key="BorderMediumColor">#D1D5DB</Color>
+  <Color x:Key="ControlMouseOverColor">#E5E7EB</Color>
+  <Color x:Key="ControlPressedColor">#E5E7EB</Color>
+  <Color x:Key="DisabledControlDarkColor">#F3F4F6</Color>
+  <Color x:Key="DisabledBorderDarkColor">#E5E7EB</Color>
+  <Color x:Key="DisabledForegroundColor">#9CA3AF</Color>
+  <Color x:Key="SelectedBackgroundColor">#E5F1FF</Color>
+  <Color x:Key="SelectedUnfocusedColor">#EFF6FF</Color>
+  <Color x:Key="GlyphColor">#444444</Color>
+
+  <Color x:Key="ControlBackgroundColor">#FFFFFF</Color>
+  <Color x:Key="ControlBorderColor">#D1D5DB</Color>
+  <Color x:Key="ControlForegroundColor">#111827</Color>
+
+  <!-- Light theme brushes -->
+  <SolidColorBrush x:Key="ShellBackgroundBrush" Color="{StaticResource ShellBackgroundColor}" />
+  <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource PanelBackgroundColor}" />
+  <SolidColorBrush x:Key="PanelBorderBrush" Color="{StaticResource PanelBorderColor}" />
+  <LinearGradientBrush x:Key="CardBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="{StaticResource CardBackgroundColor}" Offset="0" />
+    <GradientStop Color="{StaticResource CardHighlightColor}" Offset="1" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource PanelBorderColor}" />
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="AccentMutedBrush" Color="{StaticResource AccentMutedColor}" />
+
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource ControlForegroundColor}" />
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5A6478" />
+  <SolidColorBrush x:Key="ErrorBrush" Color="#CC0000" />
+
+  <!-- Main window (Alt+Space) specific brushes -->
+  <SolidColorBrush x:Key="MainSearchForegroundBrush" Color="{StaticResource ControlForegroundColor}" />
+  <SolidColorBrush x:Key="MainSearchPlaceholderBrush" Color="#99000000" />
+  <SolidColorBrush x:Key="MainHotkeyHintBrush" Color="#99000000" />
+  <SolidColorBrush x:Key="MainResultTitleBrush" Color="{StaticResource ControlForegroundColor}" />
+  <!-- Subtitle hơi nhạt hơn text chính nhưng vẫn đủ tương phản cả trên nền trắng và xanh nhạt -->
+  <SolidColorBrush x:Key="MainResultSubtitleBrush" Color="#6E6E73" />
+  <!-- Badge nền xám rất nhạt, viền mềm, chữ tối vừa phải -->
+  <SolidColorBrush x:Key="MainResultBadgeBackgroundBrush" Color="#F2F2F7" />
+  <SolidColorBrush x:Key="MainResultBadgeBorderBrush" Color="#E5E5EA" />
+  <SolidColorBrush x:Key="MainResultBadgeForegroundBrush" Color="#55565A" />
+  <!-- Hover/selected sử dụng xanh nhạt, không quá chói như hệ thống mặc định -->
+  <SolidColorBrush x:Key="MainResultItemHoverBackgroundBrush" Color="#F5F8FF" />
+  <SolidColorBrush x:Key="MainResultItemSelectedBackgroundBrush" Color="#E2EEFF" />
+  <!-- Status bar giống thẻ nổi trên nền, rõ viền nhưng không quá nặng -->
+  <SolidColorBrush x:Key="MainStatusBackgroundBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="MainStatusBorderBrush" Color="#E5E5EA" />
+  <SolidColorBrush x:Key="MainStatusForegroundBrush" Color="#3A3A3C" />
+  <!-- Empty + loading text dùng màu xám đậm hơn một chút cho dễ đọc -->
+  <SolidColorBrush x:Key="MainEmptyStateBrush" Color="#88000000" />
+  <SolidColorBrush x:Key="MainLoadingTextBrush" Color="#88000000" />
+  <!-- Thanh loading dưới sử dụng cùng tông với Accent nhưng rất mờ -->
+  <SolidColorBrush x:Key="MainLoadingBarBackgroundBrush" Color="#220078D7" />
+
+  <!-- Settings specific brushes -->
+  <SolidColorBrush x:Key="SettingsSectionBackgroundBrush" Color="{StaticResource PanelBackgroundColor}" />
+  <SolidColorBrush x:Key="SettingsSectionBorderBrush" Color="{StaticResource PanelBorderColor}" />
+  <!-- Scrollbar: transparent track, subtle dark thumb on light background -->
+  <SolidColorBrush x:Key="SettingsScrollTrackBrush" Color="Transparent" />
+  <SolidColorBrush x:Key="SettingsScrollThumbBrush" Color="#22000000" />
+  <SolidColorBrush x:Key="SettingsScrollThumbHoverBrush" Color="#66000000" />
+  <SolidColorBrush x:Key="SettingsNavBackgroundBrush" Color="{StaticResource PanelBackgroundColor}" />
+  <SolidColorBrush x:Key="SettingsNavItemHoverBrush" Color="#F0F4FF" />
+  <SolidColorBrush x:Key="SettingsNavItemActiveBrush" Color="#DDE7FF" />
+  <SolidColorBrush x:Key="SettingsNavItemActiveBorderBrush" Color="{StaticResource AccentColor}" />
+
+  <!-- Override system colors for light theme so default control chrome matches app theme -->
+  <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource ControlBackgroundColor}" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.ControlDarkBrushKey}" Color="#E0E0E0" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.ControlLightBrushKey}" Color="#F5F5F5" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{StaticResource ControlForegroundColor}" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.GrayTextBrushKey}" Color="#808080" />
+  <!-- Không dùng AccentColor cho Highlight để tránh dải nền xanh hệ thống -->
+  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource ControlBackgroundColor}" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{StaticResource ControlForegroundColor}" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{StaticResource ControlBackgroundColor}" />
+  <SolidColorBrush x:Key="{x:Static SystemColors.ScrollBarBrushKey}" Color="#D0D0D0" />
+
+  <!-- Button brushes -->
+  <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#F5F5F5" />
+  <SolidColorBrush x:Key="ButtonBorderBrush" Color="#CCCCCC" />
+  <SolidColorBrush x:Key="ButtonBackgroundHoverBrush" Color="#E6E6E6" />
+  <SolidColorBrush x:Key="ButtonBorderHoverBrush" Color="#BBBBBB" />
+  <SolidColorBrush x:Key="ButtonBackgroundPressedBrush" Color="#DDDDDD" />
+  <SolidColorBrush x:Key="ButtonBorderPressedBrush" Color="#AAAAAA" />
+
+  <SolidColorBrush x:Key="PrimaryButtonBackgroundBrush" Color="{StaticResource AccentColor}" />
+  <SolidColorBrush x:Key="PrimaryButtonBorderBrush" Color="#3366FF" />
+
+  <SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource ControlBackgroundColor}" />
+  <SolidColorBrush x:Key="ControlBorderBrush" Color="{StaticResource ControlBorderColor}" />
+  <SolidColorBrush x:Key="ControlForegroundBrush" Color="{StaticResource ControlForegroundColor}" />
+
+  <!-- Base control styles for light mode -->
+  <Style TargetType="TextBox">
+    <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+  </Style>
+
+  <Style TargetType="TextBlock">
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+  </Style>
+
+  <!-- Vertical ScrollBar for Settings ScrollViewer (light theme) -->
+  <Style x:Key="SettingsVerticalScrollBarStyle" TargetType="ScrollBar">
+    <Setter Property="Width" Value="8" />
+    <Setter Property="Background" Value="{DynamicResource SettingsScrollTrackBrush}" />
+    <Setter Property="ContextMenu" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Grid Background="{TemplateBinding Background}">
+            <Track x:Name="PART_Track" IsDirectionReversed="True">
+              <Track.DecreaseRepeatButton>
+                <RepeatButton Command="ScrollBar.LineUpCommand"
+                              Background="Transparent"
+                              Style="{x:Null}"
+                              IsTabStop="False"
+                              Height="0" />
+              </Track.DecreaseRepeatButton>
+              <Track.Thumb>
+                <Thumb Background="{DynamicResource SettingsScrollThumbBrush}">
+                  <Thumb.Template>
+                    <ControlTemplate TargetType="Thumb">
+                      <Border x:Name="ThumbBorder"
+                              Margin="2"
+                              CornerRadius="4"
+                              Background="{TemplateBinding Background}" />
+                      <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                          <Setter TargetName="ThumbBorder" Property="Background" Value="{DynamicResource SettingsScrollThumbHoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                          <Setter TargetName="ThumbBorder" Property="Background" Value="{DynamicResource AccentBrush}" />
+                        </Trigger>
+                      </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                  </Thumb.Template>
+                </Thumb>
+              </Track.Thumb>
+              <Track.IncreaseRepeatButton>
+                <RepeatButton Command="ScrollBar.LineDownCommand"
+                              Background="Transparent"
+                              Style="{x:Null}"
+                              IsTabStop="False"
+                              Height="0" />
+              </Track.IncreaseRepeatButton>
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ComboBox for Settings: flat light look -->
+  <Style x:Key="SettingsComboBoxStyle" TargetType="ComboBox">
+    <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+    <Setter Property="Padding" Value="12,4,12,4" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBox">
+          <Grid>
+            <ToggleButton x:Name="ToggleButton"
+                          Focusable="False"
+                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                          ClickMode="Press"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+              <Border x:Name="OuterBorder"
+                      Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="1"
+                      CornerRadius="6">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="32" />
+                  </Grid.ColumnDefinitions>
+                  <ContentPresenter x:Name="ContentSite"
+                                    Margin="{TemplateBinding Padding}"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Left"
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                    ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                    RecognizesAccessKey="True" />
+                  <Grid Grid.Column="1"
+                        Background="Transparent">
+                    <Path Data="M 0 0 L 4 4 L 8 0 Z"
+                          Width="12"
+                          Height="6"
+                          Stretch="Uniform"
+                          Fill="{StaticResource ControlForegroundBrush}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                  </Grid>
+                </Grid>
+              </Border>
+            </ToggleButton>
+
+            <Popup x:Name="PART_Popup"
+                   Placement="Bottom"
+                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   PopupAnimation="Slide">
+              <Grid x:Name="DropDown"
+                    SnapsToDevicePixels="True"
+                    MinWidth="{TemplateBinding ActualWidth}"
+                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                <Border x:Name="DropDownBorder"
+                        Background="{StaticResource PanelBackgroundBrush}"
+                        BorderBrush="{StaticResource ControlBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                  <ScrollViewer Margin="0"
+                                SnapsToDevicePixels="True">
+                    <StackPanel IsItemsHost="True"
+                                KeyboardNavigation.DirectionalNavigation="Contained" />
+                  </ScrollViewer>
+                </Border>
+              </Grid>
+            </Popup>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasItems" Value="False">
+              <Setter TargetName="DropDownBorder" Property="MinHeight" Value="44" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="OuterBorder" Property="Opacity" Value="0.5" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ComboBox dropdown items (shared) -->
+  <Style TargetType="ComboBoxItem">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+    <Setter Property="Padding" Value="8,4" />
+    <Style.Triggers>
+      <Trigger Property="IsHighlighted" Value="True">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="White" />
+      </Trigger>
+      <Trigger Property="IsSelected" Value="True">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="White" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <Style TargetType="ListView">
+    <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+  </Style>
+
+  <Style TargetType="Button">
+    <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Root"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="4">
+            <ContentPresenter HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Root" Property="Background" Value="{StaticResource ButtonBackgroundHoverBrush}" />
+              <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource ButtonBorderHoverBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="Root" Property="Background" Value="{StaticResource ButtonBackgroundPressedBrush}" />
+              <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource ButtonBorderPressedBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="Root" Property="Opacity" Value="0.6" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+    <Setter Property="Background" Value="{StaticResource PrimaryButtonBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource PrimaryButtonBorderBrush}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+</ResourceDictionary>
