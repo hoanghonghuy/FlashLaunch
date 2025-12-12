@@ -48,38 +48,40 @@ jobs:
 
           $releaseLabel = if ($tag -eq "v0.1.0") { "Initial Release" } else { "Patch Release" }
 
-          $notes = @"
-          ## $releaseLabel: $tag
-          
-          ### Downloads (Windows x64)
-          
-          - Portable ($portableMb MB) - Framework-dependent, requires .NET 8 Desktop Runtime
-            - File: flashlaunch-$tag-portable-win-x64.zip
-            - SHA256: $portableSha
-          
-          - Standalone ($standaloneMb MB) - Self-contained, no runtime required
-            - File: flashlaunch-$tag-standalone-win-x64.zip
-            - SHA256: $standaloneSha
-          
-          ### How to run
-          
-          - Standalone: extract and run `FlashLaunch.UI.exe`.
-          - Portable: install .NET 8 Desktop Runtime first, then extract and run `FlashLaunch.UI.exe`.
-            - Runtime download: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
-          
-          ### Added
-          
-          - Portable + Standalone release packages.
-          
-          ### Fixed
-          
-          - Packaging now publishes only the UI executable project (prevents NETSDK1099 when publishing libraries).
-          - Unhandled exception logs are written to `%AppData%\\FlashLaunch\\logs`.
-          
-          ### Changed
-          
-          - Settings UI is WPF-only (removed ImGui settings path).
-          "@
+          $notesLines = @(
+            "## $releaseLabel: $tag",
+            "",
+            "### Downloads (Windows x64)",
+            "",
+            "- Portable ($portableMb MB) - Framework-dependent, requires .NET 8 Desktop Runtime",
+            "  - File: flashlaunch-$tag-portable-win-x64.zip",
+            "  - SHA256: $portableSha",
+            "",
+            "- Standalone ($standaloneMb MB) - Self-contained, no runtime required",
+            "  - File: flashlaunch-$tag-standalone-win-x64.zip",
+            "  - SHA256: $standaloneSha",
+            "",
+            "### How to run",
+            "",
+            "- Standalone: extract and run ``FlashLaunch.UI.exe``.",
+            "- Portable: install .NET 8 Desktop Runtime first, then extract and run ``FlashLaunch.UI.exe``.",
+            "  - Runtime download: https://dotnet.microsoft.com/en-us/download/dotnet/8.0",
+            "",
+            "### Added",
+            "",
+            "- Portable + Standalone release packages.",
+            "",
+            "### Fixed",
+            "",
+            "- Packaging now publishes only the UI executable project (prevents NETSDK1099 when publishing libraries).",
+            "- Unhandled exception logs are written to `%AppData%\\FlashLaunch\\logs`.",
+            "",
+            "### Changed",
+            "",
+            "- Settings UI is WPF-only (removed ImGui settings path)."
+          )
+
+          $notes = $notesLines -join "`n"
 
           $notes | Out-File "artifacts/RELEASE_NOTES.md" -Encoding UTF8
 
