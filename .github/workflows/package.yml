@@ -49,7 +49,7 @@ jobs:
           $releaseLabel = if ($tag -eq "v0.1.0") { "Initial Release" } else { "Patch Release" }
 
           $notesLines = @(
-            "## $releaseLabel: $tag",
+            "## $($releaseLabel): $tag",
             "",
             "### Downloads (Windows x64)",
             "",
