@@ -36,6 +36,13 @@ public partial class App : System.Windows.Application
         typeof(QueryDispatcher).FullName!
     };
 
+    private static readonly HashSet<string> PluginCategories = new(StringComparer.Ordinal)
+    {
+        typeof(ExternalPluginLoader).FullName!,
+        typeof(PluginCatalog).FullName!,
+        typeof(PluginLoadContext).FullName!
+    };
+
     public IServiceProvider Services => _host!.Services;
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -53,6 +60,7 @@ public partial class App : System.Windows.Application
                 logging.AddDebug();
                 logging.AddConsole();
                 logging.AddProvider(CreatePerfLogger());
+                logging.AddProvider(CreatePluginLogger());
                 logging.AddProvider(CreateErrorLogger());
             })
             .ConfigureServices((_, services) =>
@@ -178,5 +186,14 @@ public partial class App : System.Windows.Application
     {
         var errorPath = Path.Combine(LogsDirectory, "flashlaunch-error.log");
         return new FileLoggerProvider(errorPath, LogLevel.Warning, static (_, level) => level >= LogLevel.Warning);
+    }
+
+    private static ILoggerProvider CreatePluginLogger()
+    {
+        var pluginPath = Path.Combine(LogsDirectory, "flashlaunch-plugin-loader.log");
+        return new FileLoggerProvider(pluginPath, LogLevel.Debug, (category, level) =>
+            level >= LogLevel.Debug &&
+            category is not null &&
+            PluginCategories.Contains(category));
     }
 }
