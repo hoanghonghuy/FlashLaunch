@@ -132,6 +132,11 @@ public partial class SettingsWindow : Window
         _viewModel.RefreshIndex();
     }
 
+    private void OnReloadPluginsClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel.ReloadPlugins();
+    }
+
     private void OnResetUsageLogsClick(object sender, RoutedEventArgs e)
     {
         _viewModel.ResetUsageLogs();

@@ -5,4 +5,6 @@ namespace FlashLaunch.Core.Abstractions;
 public interface IPluginCatalog
 {
     IReadOnlyList<IPlugin> GetPlugins();
+
+    void Reload();
 }

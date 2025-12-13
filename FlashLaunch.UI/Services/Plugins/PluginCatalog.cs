@@ -45,4 +45,13 @@ public sealed class PluginCatalog : IPluginCatalog
             return _cached;
         }
     }
+
+    public void Reload()
+    {
+        lock (_gate)
+        {
+            _cached = null;
+            _logger.LogInformation("Plugin catalog cache cleared. Plugins will be re-scanned on next access.");
+        }
+    }
 }

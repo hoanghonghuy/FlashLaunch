@@ -633,6 +633,10 @@
                                         <DockPanel Margin="0,0,0,12">
                                             <TextBlock Style="{StaticResource SettingsSectionHeaderText}"
                                                        Text="{DynamicResource Settings_Plugins}" />
+                                            <Button DockPanel.Dock="Right"
+                                                    Content="{DynamicResource Settings_ReloadPlugins}"
+                                                    Style="{StaticResource SettingsButtonStyle}"
+                                                    Click="OnReloadPluginsClick" />
                                         </DockPanel>
                                         <ItemsControl Margin="0,12,0,0"
                                                       ItemsSource="{Binding PluginToggles}">

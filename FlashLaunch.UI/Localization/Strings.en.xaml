@@ -30,6 +30,7 @@
   <sys:String x:Key="Settings_BrowseDialog_Description">Select a folder that contains additional applications.</sys:String>
   <sys:String x:Key="Settings_RefreshIndex">Refresh Index</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs">Reset Usage + Logs</sys:String>
+  <sys:String x:Key="Settings_ReloadPlugins">Reload plugins</sys:String>
   <sys:String x:Key="Settings_IconCache_Enable">Persist icon cache to disk (faster launch)</sys:String>
   <sys:String x:Key="Settings_IconCache_Clear">Clear icon cache</sys:String>
   <sys:String x:Key="Settings_Cancel">Cancel</sys:String>
@@ -66,6 +67,7 @@
   <sys:String x:Key="Settings_CustomDir_Removed">Removed {0}.</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs_Success">Usage cache &amp; logs cleared</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs_Failed">Unable to reset usage/logs.</sys:String>
+  <sys:String x:Key="Settings_Plugins_Reloaded">Plugins reloaded</sys:String>
   <sys:String x:Key="Settings_IconCache_Cleared">Icon cache cleared.</sys:String>
   <sys:String x:Key="Settings_IconCache_ClearFailed">Could not clear icon cache.</sys:String>
   <sys:String x:Key="Settings_AppIndex_Refreshed">App index refreshed</sys:String>

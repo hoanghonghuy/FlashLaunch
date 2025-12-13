@@ -15,6 +15,7 @@ public sealed class SettingsViewModel : ObservableObject
 {
     private readonly AppConfig _config;
     private readonly ConfigService _configService;
+    private readonly IPluginCatalog _pluginCatalog;
     private readonly StringComparer _pathComparer = StringComparer.OrdinalIgnoreCase;
     private readonly ShellController _shellController;
     private readonly IPluginStateProvider _pluginStateProvider;
@@ -32,6 +33,7 @@ public sealed class SettingsViewModel : ObservableObject
     {
         _config = config;
         _configService = configService;
+        _pluginCatalog = pluginCatalog;
         _shellController = shellController;
         _pluginStateProvider = pluginStateProvider;
         _mainViewModel = mainViewModel;
@@ -44,17 +46,8 @@ public sealed class SettingsViewModel : ObservableObject
 
         Theme = string.IsNullOrWhiteSpace(config.Theme) ? "System" : config.Theme;
 
-        var plugins = pluginCatalog.GetPlugins();
-
-        PluginToggles = new ObservableCollection<PluginToggleViewModel>(
-            plugins.Select(p =>
-            {
-                var pluginId = p is IPluginIdentity identity && !string.IsNullOrWhiteSpace(identity.Id)
-                    ? identity.Id
-                    : p.Name;
-                var enabled = _pluginStateProvider.IsEnabled(pluginId, p.Name);
-                return new PluginToggleViewModel(pluginId, p.Name, enabled);
-            }));
+        PluginToggles = new ObservableCollection<PluginToggleViewModel>();
+        RebuildPluginToggles(preserveCurrentSelections: false);
 
         CustomDirectories = new ObservableCollection<string>(config.CustomAppDirectories ?? new List<string>());
 
@@ -202,6 +195,37 @@ public sealed class SettingsViewModel : ObservableObject
         {
             ValidationMessage = error ?? LocalizationManager.GetString("Settings_ResetUsageLogs_Failed");
             IsValidationError = true;
+        }
+    }
+
+    public void ReloadPlugins()
+    {
+        _pluginCatalog.Reload();
+        RebuildPluginToggles(preserveCurrentSelections: true);
+        ValidationMessage = LocalizationManager.GetString("Settings_Plugins_Reloaded");
+        IsValidationError = false;
+        _mainViewModel.RefreshResults();
+    }
+
+    private void RebuildPluginToggles(bool preserveCurrentSelections)
+    {
+        var current = preserveCurrentSelections
+            ? PluginToggles.ToDictionary(p => p.PluginId, p => p.IsEnabled, StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        PluginToggles.Clear();
+        var plugins = _pluginCatalog.GetPlugins();
+        foreach (var plugin in plugins)
+        {
+            var pluginId = plugin is IPluginIdentity identity && !string.IsNullOrWhiteSpace(identity.Id)
+                ? identity.Id
+                : plugin.Name;
+
+            var enabled = current.TryGetValue(pluginId, out var selected)
+                ? selected
+                : _pluginStateProvider.IsEnabled(pluginId, plugin.Name);
+
+            PluginToggles.Add(new PluginToggleViewModel(pluginId, plugin.Name, enabled));
         }
     }
 
