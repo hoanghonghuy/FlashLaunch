@@ -12,6 +12,7 @@ using FlashLaunch.Plugins.SystemCommands;
 using FlashLaunch.Plugins.WebSearch;
 using FlashLaunch.UI.Configuration;
 using FlashLaunch.UI.Services;
+using FlashLaunch.UI.Services.Plugins;
 using FlashLaunch.UI.ViewModels;
 using FlashLaunch.UI.Views;
 using FlashLaunch.UI.Localization;
@@ -65,6 +66,9 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IPlugin, SystemCommandsPlugin>();
                 services.AddSingleton<IAppIndexPathProvider, AppIndexPathProvider>();
 
+                services.AddSingleton<ExternalPluginLoader>();
+                services.AddSingleton<IPluginCatalog, PluginCatalog>();
+
                 services.AddSingleton<ConfigService>();
                 services.AddSingleton<AppConfig>(_ =>
                 {
@@ -99,15 +103,16 @@ public partial class App : System.Windows.Application
         LocalizationManager.ApplyLanguage(appConfig.Language);
         ThemeManager.ApplyTheme(appConfig.Theme);
 
-        var mainWindow = Services.GetRequiredService<MainWindow>();
-        mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
-        mainWindow.Show();
-
         _shellController = Services.GetRequiredService<ShellController>();
         _shellController.Initialize();
 
         _trayIconService = Services.GetRequiredService<TrayIconService>();
         _trayIconService.Initialize();
+
+        if (e.Args.Length > 0 && Array.Exists(e.Args, static arg => string.Equals(arg, "--show", StringComparison.OrdinalIgnoreCase)))
+        {
+            _shellController.ShowMainWindow();
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)

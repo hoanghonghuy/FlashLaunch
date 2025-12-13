@@ -16,4 +16,6 @@ public static class AppDataPaths
     public static string UsageCachePath => Path.Combine(Root, "usage-apps.json");
 
     public static string IconCacheDirectory => Path.Combine(Root, "icon-cache");
+
+    public static string PluginsDirectory => Path.Combine(Root, "plugins");
 }

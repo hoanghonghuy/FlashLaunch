@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using FlashLaunch.UI.Interop;
@@ -16,40 +15,24 @@ public sealed class HotkeyService : IHotkeyService
     private HwndSource? _source;
     private int _currentId;
 
-    public void Initialize(Window window)
-    {
-        if (window is null)
-        {
-            throw new ArgumentNullException(nameof(window));
-        }
+    private static readonly IntPtr HwndMessage = new(-3);
 
-        if (_source is not null)
-        {
-            return;
-        }
-
-        window.SourceInitialized += (_, _) => Attach(window);
-
-        if (window.IsLoaded)
-        {
-            Attach(window);
-        }
-    }
-
-    private void Attach(Window window)
+    public void Initialize()
     {
         if (_source is not null)
         {
             return;
         }
 
-        var handle = new WindowInteropHelper(window).Handle;
-        if (handle == IntPtr.Zero)
+        var parameters = new HwndSourceParameters("FlashLaunch.HotkeySink")
         {
-            throw new InvalidOperationException("Window handle is not available.");
-        }
+            ParentWindow = HwndMessage,
+            WindowStyle = 0,
+            Width = 0,
+            Height = 0
+        };
 
-        _source = HwndSource.FromHwnd(handle) ?? throw new InvalidOperationException("Cannot create HWND source.");
+        _source = new HwndSource(parameters);
         _source.AddHook(WndProc);
     }
 

@@ -6,7 +6,7 @@ namespace FlashLaunch.UI.Services;
 
 public interface IHotkeyService : IDisposable
 {
-    void Initialize(System.Windows.Window window);
+    void Initialize();
 
     int RegisterHotkey(HotkeyModifiers modifiers, Key key, Action callback);
 

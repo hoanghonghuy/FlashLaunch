@@ -8,7 +8,7 @@ using FlashLaunch.Core.Models;
 
 namespace FlashLaunch.Plugins.SystemCommands;
 
-public sealed class SystemCommandsPlugin : IPlugin
+public sealed class SystemCommandsPlugin : IPlugin, IPluginIdentity
 {
     private readonly IStringLocalizer _localizer;
     private readonly ISystemCommandState _state;
@@ -47,6 +47,8 @@ public sealed class SystemCommandsPlugin : IPlugin
     public string Name => _localizer["Plugin_System_Name"];
 
     public string Description => _localizer["Plugin_System_Description"];
+
+    public string Id => "flashlaunch.builtin.system_commands";
 
     public PluginKind Kind => PluginKind.System;
 

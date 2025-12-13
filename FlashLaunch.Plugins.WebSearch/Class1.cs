@@ -8,7 +8,7 @@ using FlashLaunch.Core.Models;
 
 namespace FlashLaunch.Plugins.WebSearch;
 
-public sealed class WebSearchPlugin : IPlugin
+public sealed class WebSearchPlugin : IPlugin, IPluginIdentity
 {
     private static readonly IReadOnlyDictionary<string, string> SearchProviders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
@@ -29,6 +29,8 @@ public sealed class WebSearchPlugin : IPlugin
     public string Name => _localizer["Plugin_Web_Name"];
 
     public string Description => _localizer["Plugin_Web_Description"];
+
+    public string Id => "flashlaunch.builtin.web_search";
 
     public PluginKind Kind => PluginKind.Web;
 

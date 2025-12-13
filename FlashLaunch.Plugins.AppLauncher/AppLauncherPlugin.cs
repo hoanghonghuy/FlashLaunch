@@ -13,7 +13,7 @@ using FlashLaunch.Core.Utilities;
 
 namespace FlashLaunch.Plugins.AppLauncher;
 
-public sealed class AppLauncherPlugin : IPlugin
+public sealed class AppLauncherPlugin : IPlugin, IPluginIdentity
 {
     private readonly IStringLocalizer _localizer;
     private readonly IAppIndexPathProvider _pathProvider;
@@ -40,6 +40,8 @@ public sealed class AppLauncherPlugin : IPlugin
     public string Name => _localizer["Plugin_Applications_Name"];
 
     public string Description => _localizer["Plugin_Applications_Description"];
+
+    public string Id => "flashlaunch.builtin.app_launcher";
 
     public PluginKind Kind => PluginKind.Application;
 

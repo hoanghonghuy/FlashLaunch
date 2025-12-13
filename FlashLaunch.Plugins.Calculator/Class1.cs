@@ -9,7 +9,7 @@ using FlashLaunch.Core.Models;
 
 namespace FlashLaunch.Plugins.Calculator;
 
-public sealed class CalculatorPlugin : IPlugin
+public sealed class CalculatorPlugin : IPlugin, IPluginIdentity
 {
     private readonly IStringLocalizer _localizer;
 
@@ -21,6 +21,8 @@ public sealed class CalculatorPlugin : IPlugin
     public string Name => _localizer["Plugin_Calculator_Name"];
 
     public string Description => _localizer["Plugin_Calculator_Description"];
+
+    public string Id => "flashlaunch.builtin.calculator";
 
     public PluginKind Kind => PluginKind.Calculator;
 

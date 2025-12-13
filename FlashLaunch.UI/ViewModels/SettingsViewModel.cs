@@ -24,7 +24,7 @@ public sealed class SettingsViewModel : ObservableObject
     public SettingsViewModel(
         AppConfig config,
         ConfigService configService,
-        IEnumerable<IPlugin> plugins,
+        IPluginCatalog pluginCatalog,
         ShellController shellController,
         IPluginStateProvider pluginStateProvider,
         MainViewModel mainViewModel,
@@ -44,11 +44,16 @@ public sealed class SettingsViewModel : ObservableObject
 
         Theme = string.IsNullOrWhiteSpace(config.Theme) ? "System" : config.Theme;
 
+        var plugins = pluginCatalog.GetPlugins();
+
         PluginToggles = new ObservableCollection<PluginToggleViewModel>(
             plugins.Select(p =>
             {
-                var enabled = !config.PluginStates.TryGetValue(p.Name, out var state) || state;
-                return new PluginToggleViewModel(p.Name, enabled);
+                var pluginId = p is IPluginIdentity identity && !string.IsNullOrWhiteSpace(identity.Id)
+                    ? identity.Id
+                    : p.Name;
+                var enabled = _pluginStateProvider.IsEnabled(pluginId, p.Name);
+                return new PluginToggleViewModel(pluginId, p.Name, enabled);
             }));
 
         CustomDirectories = new ObservableCollection<string>(config.CustomAppDirectories ?? new List<string>());
@@ -165,7 +170,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         foreach (var toggle in PluginToggles)
         {
-            _pluginStateProvider.UpdateState(toggle.Name, toggle.IsEnabled);
+            _pluginStateProvider.UpdateState(toggle.PluginId, toggle.IsEnabled);
         }
 
         Save();
@@ -248,7 +253,7 @@ public sealed class SettingsViewModel : ObservableObject
 
         foreach (var toggle in PluginToggles)
         {
-            _config.PluginStates[toggle.Name] = toggle.IsEnabled;
+            _config.PluginStates[toggle.PluginId] = toggle.IsEnabled;
         }
 
         _config.WebSearchProviders = WebSearchProviders
@@ -333,11 +338,14 @@ public sealed class PluginToggleViewModel : ObservableObject
 {
     private bool _isEnabled;
 
-    public PluginToggleViewModel(string name, bool isEnabled)
+    public PluginToggleViewModel(string pluginId, string name, bool isEnabled)
     {
+        PluginId = pluginId;
         Name = name;
         _isEnabled = isEnabled;
     }
+
+    public string PluginId { get; }
 
     public string Name { get; }
 

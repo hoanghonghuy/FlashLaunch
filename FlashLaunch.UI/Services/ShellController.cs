@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Input;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
@@ -13,20 +15,20 @@ namespace FlashLaunch.UI.Services;
 
 public sealed class ShellController : IDisposable
 {
-    private readonly MainWindow _window;
-    private readonly MainViewModel _viewModel;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IHotkeyService _hotkeyService;
     private readonly AppConfig _config;
+    private MainWindow? _window;
+    private MainViewModel? _viewModel;
     private bool _initialized;
     private int _toggleHotkeyId;
     private bool _disposed;
     private HotkeyModifiers _currentModifiers = HotkeyModifiers.Alt;
     private Key _currentKey = Key.Space;
 
-    public ShellController(MainWindow window, MainViewModel viewModel, IHotkeyService hotkeyService, AppConfig config)
+    public ShellController(IServiceProvider serviceProvider, IHotkeyService hotkeyService, AppConfig config)
     {
-        _window = window ?? throw new ArgumentNullException(nameof(window));
-        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _hotkeyService = hotkeyService ?? throw new ArgumentNullException(nameof(hotkeyService));
         _config = config ?? throw new ArgumentNullException(nameof(config));
     }
@@ -40,7 +42,7 @@ public sealed class ShellController : IDisposable
 
         _initialized = true;
 
-        _hotkeyService.Initialize(_window);
+        _hotkeyService.Initialize();
         if (!HotkeyParser.TryParse(_config.Hotkey, out var modifiers, out var key))
         {
             modifiers = HotkeyModifiers.Alt;
@@ -51,11 +53,12 @@ public sealed class ShellController : IDisposable
         {
             RegisterHotkey(HotkeyModifiers.Alt, Key.Space, out _);
         }
+    }
 
-        _window.PreviewKeyDown += OnWindowPreviewKeyDown;
-        _window.Deactivated += OnWindowDeactivated;
-
-        HideShell();
+    public void ShowMainWindow()
+    {
+        EnsureWindowCreated();
+        ShowShell();
     }
 
     public bool TryUpdateHotkey(HotkeyModifiers modifiers, Key key, out string? errorMessage)
@@ -112,7 +115,8 @@ public sealed class ShellController : IDisposable
 
     private void ToggleVisibility()
     {
-        if (_window.Dispatcher.CheckAccess())
+        EnsureWindowCreated();
+        if (_window!.Dispatcher.CheckAccess())
         {
             if (_window.IsVisible)
             {
@@ -125,13 +129,48 @@ public sealed class ShellController : IDisposable
         }
         else
         {
-            _window.Dispatcher.Invoke(ToggleVisibility);
+            _window!.Dispatcher.Invoke(ToggleVisibility);
         }
+    }
+
+    private void EnsureWindowCreated()
+    {
+        if (_window is not null)
+        {
+            return;
+        }
+
+        if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+        {
+            CreateWindowCore();
+        }
+        else
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(CreateWindowCore);
+        }
+    }
+
+    private void CreateWindowCore()
+    {
+        if (_window is not null)
+        {
+            return;
+        }
+
+        _window = _serviceProvider.GetRequiredService<MainWindow>();
+        _viewModel = _serviceProvider.GetRequiredService<MainViewModel>();
+        _window.DataContext = _viewModel;
+
+        System.Windows.Application.Current.MainWindow = _window;
+
+        _window.PreviewKeyDown += OnWindowPreviewKeyDown;
+        _window.Deactivated += OnWindowDeactivated;
+        _window.Closing += OnWindowClosing;
     }
 
     private void ShowShell()
     {
-        _window.Dispatcher.Invoke(() =>
+        _window!.Dispatcher.Invoke(() =>
         {
             if (!_window.IsVisible)
             {
@@ -146,6 +185,11 @@ public sealed class ShellController : IDisposable
 
     private void HideShell()
     {
+        if (_window is null)
+        {
+            return;
+        }
+
         _window.Dispatcher.Invoke(() =>
         {
             if (_window.IsVisible)
@@ -155,11 +199,22 @@ public sealed class ShellController : IDisposable
         });
     }
 
+    private void OnWindowClosing(object? sender, CancelEventArgs e)
+    {
+        if (System.Windows.Application.Current.Dispatcher.HasShutdownStarted)
+        {
+            return;
+        }
+
+        e.Cancel = true;
+        HideShell();
+    }
+
     private void OnWindowPreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)
         {
-            if (!string.IsNullOrWhiteSpace(_viewModel.QueryText))
+            if (_viewModel is not null && !string.IsNullOrWhiteSpace(_viewModel.QueryText))
             {
                 _viewModel.QueryText = string.Empty;
                 e.Handled = true;
@@ -173,7 +228,7 @@ public sealed class ShellController : IDisposable
 
     private void OnWindowDeactivated(object? sender, EventArgs e)
     {
-        if (_window.IsVisible)
+        if (_window is not null && _window.IsVisible)
         {
             HideShell();
         }
@@ -188,8 +243,12 @@ public sealed class ShellController : IDisposable
 
         _disposed = true;
 
-        _window.PreviewKeyDown -= OnWindowPreviewKeyDown;
-        _window.Deactivated -= OnWindowDeactivated;
+        if (_window is not null)
+        {
+            _window.PreviewKeyDown -= OnWindowPreviewKeyDown;
+            _window.Deactivated -= OnWindowDeactivated;
+            _window.Closing -= OnWindowClosing;
+        }
 
         if (_toggleHotkeyId != 0)
         {

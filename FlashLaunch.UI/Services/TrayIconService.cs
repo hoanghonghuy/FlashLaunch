@@ -12,11 +12,13 @@ namespace FlashLaunch.UI.Services;
 public sealed class TrayIconService : IDisposable
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ShellController _shellController;
     private NotifyIcon? _notifyIcon;
 
-    public TrayIconService(IServiceProvider serviceProvider)
+    public TrayIconService(IServiceProvider serviceProvider, ShellController shellController)
     {
         _serviceProvider = serviceProvider;
+        _shellController = shellController;
     }
 
     public void Initialize()
@@ -52,17 +54,7 @@ public sealed class TrayIconService : IDisposable
 
     private void ShowMainWindow()
     {
-        if (System.Windows.Application.Current.MainWindow is null)
-        {
-            return;
-        }
-
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
-        {
-            System.Windows.Application.Current.MainWindow.Show();
-            System.Windows.Application.Current.MainWindow.WindowState = WindowState.Normal;
-            System.Windows.Application.Current.MainWindow.Activate();
-        });
+        _shellController.ShowMainWindow();
     }
 
     private void ShowSettings()
@@ -70,7 +62,15 @@ public sealed class TrayIconService : IDisposable
         System.Windows.Application.Current.Dispatcher.Invoke(() =>
         {
             var window = _serviceProvider.GetRequiredService<SettingsWindow>();
-            window.Owner = System.Windows.Application.Current.MainWindow;
+            var owner = System.Windows.Application.Current.MainWindow;
+            if (owner is not null && !ReferenceEquals(owner, window))
+            {
+                window.Owner = owner;
+            }
+            else
+            {
+                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
             window.Show();
             window.Focus();
         });

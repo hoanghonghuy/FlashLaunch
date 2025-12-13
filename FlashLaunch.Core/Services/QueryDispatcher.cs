@@ -17,13 +17,13 @@ public interface IQueryDispatcher
 
 public sealed class QueryDispatcher : IQueryDispatcher
 {
-    private readonly IEnumerable<IPlugin> _plugins;
+    private readonly IPluginCatalog _pluginCatalog;
     private readonly ILogger<QueryDispatcher> _logger;
     private readonly IPluginStateProvider _stateProvider;
 
-    public QueryDispatcher(IEnumerable<IPlugin> plugins, ILogger<QueryDispatcher> logger, IPluginStateProvider stateProvider)
+    public QueryDispatcher(IPluginCatalog pluginCatalog, ILogger<QueryDispatcher> logger, IPluginStateProvider stateProvider)
     {
-        _plugins = plugins ?? throw new ArgumentNullException(nameof(plugins));
+        _pluginCatalog = pluginCatalog ?? throw new ArgumentNullException(nameof(pluginCatalog));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _stateProvider = stateProvider ?? throw new ArgumentNullException(nameof(stateProvider));
     }
@@ -36,7 +36,10 @@ public sealed class QueryDispatcher : IQueryDispatcher
         }
 
         var stopwatch = ValueStopwatch.StartNew();
-        var activePlugins = _plugins.Where(p => _stateProvider.IsEnabled(p.Name)).ToList();
+        var activePlugins = _pluginCatalog
+            .GetPlugins()
+            .Where(p => _stateProvider.IsEnabled(GetPluginId(p), p.Name))
+            .ToList();
         var tasks = activePlugins.Select(plugin => QueryPluginSafeAsync(plugin, query, cancellationToken));
         var results = await Task.WhenAll(tasks).ConfigureAwait(false);
         var elapsed = stopwatch.GetElapsedTime();
@@ -76,5 +79,15 @@ public sealed class QueryDispatcher : IQueryDispatcher
             _logger.LogError(ex, "Plugin {PluginName} failed to process query {Query}.", plugin.Name, query);
             return Array.Empty<SearchResult>();
         }
+    }
+
+    private static string GetPluginId(IPlugin plugin)
+    {
+        if (plugin is IPluginIdentity identity && !string.IsNullOrWhiteSpace(identity.Id))
+        {
+            return identity.Id;
+        }
+
+        return plugin.Name;
     }
 }
