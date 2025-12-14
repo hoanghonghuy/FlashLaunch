@@ -37,11 +37,13 @@ public sealed class ExternalPluginLoader
 
     public IReadOnlyList<IPlugin> LoadPlugins()
     {
-        var roots = new[]
+        var roots = new List<string>
         {
             AppDataPaths.PluginsDirectory,
             Path.Combine(AppContext.BaseDirectory, "plugins")
         };
+
+        roots.AddRange(GetDevPluginRoots());
 
         var result = new List<IPlugin>();
         var loadedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -52,6 +54,39 @@ public sealed class ExternalPluginLoader
         }
 
         _logger.LogInformation("Loaded {PluginCount} external plugins.", result.Count);
+
+        return result;
+    }
+
+    private IEnumerable<string> GetDevPluginRoots()
+    {
+        var result = new List<string>();
+
+        var defaultDev = Path.Combine(AppDataPaths.GetRoot(), "plugins-dev");
+        result.Add(defaultDev);
+
+        var env = Environment.GetEnvironmentVariable("FLASHLAUNCH_DEV_PLUGINS_DIR");
+        if (string.IsNullOrWhiteSpace(env))
+        {
+            return result;
+        }
+
+        foreach (var value in env.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    continue;
+                }
+
+                result.Add(Path.GetFullPath(value));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to resolve dev plugin root from environment variable. Value={Value}", value);
+            }
+        }
 
         return result;
     }
