@@ -13,6 +13,14 @@ public sealed class ExternalPluginLoader
 {
     private const string ManifestFileName = "plugin.json";
 
+    private static readonly string[] SharedAssemblyFileNames =
+    {
+        "FlashLaunch.Core.dll",
+        "FlashLaunch.PluginSdk.dll",
+        "FlashLaunch.PluginHostSdk.dll",
+        "Microsoft.Extensions.Logging.Abstractions.dll"
+    };
+
     private static readonly JsonSerializerOptions ManifestJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -36,10 +44,11 @@ public sealed class ExternalPluginLoader
         };
 
         var result = new List<IPlugin>();
+        var loadedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             _logger.LogInformation("Scanning external plugins from: {Root}", root);
-            result.AddRange(LoadPluginsFromRoot(root));
+            result.AddRange(LoadPluginsFromRoot(root, loadedIds));
         }
 
         _logger.LogInformation("Loaded {PluginCount} external plugins.", result.Count);
@@ -47,7 +56,7 @@ public sealed class ExternalPluginLoader
         return result;
     }
 
-    private IEnumerable<IPlugin> LoadPluginsFromRoot(string root)
+    private IEnumerable<IPlugin> LoadPluginsFromRoot(string root, HashSet<string> loadedIds)
     {
         if (string.IsNullOrWhiteSpace(root))
         {
@@ -70,52 +79,68 @@ public sealed class ExternalPluginLoader
                 continue;
             }
 
-            var plugin = TryLoadPlugin(pluginDir, manifestPath);
-            if (plugin is not null)
+            var loaded = TryLoadPlugin(pluginDir, manifestPath);
+            if (loaded is not null)
             {
-                _logger.LogInformation("Loaded external plugin: {PluginName} ({PluginType}) from {Dir}", plugin.Name, plugin.GetType().FullName, pluginDir);
-                yield return plugin;
+                if (!loadedIds.Add(loaded.Id))
+                {
+                    if (loaded.Plugin is IDisposable disposable)
+                    {
+                        try { disposable.Dispose(); } catch { }
+                    }
+
+                    try { loaded.LoadContext.Unload(); } catch { }
+
+                    _logger.LogWarning("Duplicate external plugin id detected; skipping. Id={PluginId} Dir={Dir}", loaded.Id, pluginDir);
+                    continue;
+                }
+
+                _logger.LogInformation("Loaded external plugin: {PluginName} ({PluginType}) Id={PluginId} from {Dir}", loaded.Plugin.Name, loaded.Plugin.GetType().FullName, loaded.Id, pluginDir);
+                yield return loaded.Plugin;
             }
         }
     }
 
-    private IPlugin? TryLoadPlugin(string pluginDir, string manifestPath)
+    private sealed record LoadedExternalPlugin(string Id, IPlugin Plugin, PluginLoadContext LoadContext);
+
+    private LoadedExternalPlugin? TryLoadPlugin(string pluginDir, string manifestPath)
     {
         IPlugin? plugin = null;
+        PluginLoadContext? loadContext = null;
+        ExternalPluginManifest? manifest = null;
         try
         {
-            var json = File.ReadAllText(manifestPath);
-            var manifest = JsonSerializer.Deserialize<ExternalPluginManifest>(json, ManifestJsonOptions);
-            if (manifest is null)
+            if (!TryReadManifest(manifestPath, out var parsedManifest))
             {
-                _logger.LogWarning("Failed to parse plugin manifest. Path={ManifestPath}", manifestPath);
                 return null;
             }
 
-            if (manifest.ApiVersion != 1)
+            manifest = parsedManifest;
+
+            if (!ValidateManifest(manifestPath, manifest, out var validationError))
             {
-                _logger.LogWarning("Unsupported plugin apiVersion. Path={ManifestPath} ApiVersion={ApiVersion}", manifestPath, manifest.ApiVersion);
+                _logger.LogWarning("Invalid plugin manifest. Path={ManifestPath} Error={Error}", manifestPath, validationError);
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(manifest.Id) || string.IsNullOrWhiteSpace(manifest.Assembly) || string.IsNullOrWhiteSpace(manifest.Type))
+            WarnIfBundledSharedAssemblies(pluginDir, manifest.Id);
+
+            var pluginDirFull = Path.GetFullPath(pluginDir);
+            var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, manifest.Assembly));
+            if (!assemblyPath.StartsWith(pluginDirFull + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(assemblyPath, pluginDirFull, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning("Invalid plugin manifest (missing fields). Path={ManifestPath} Id={Id} Assembly={Assembly} Type={Type}",
-                    manifestPath,
-                    manifest.Id,
-                    manifest.Assembly,
-                    manifest.Type);
+                _logger.LogWarning("Plugin assembly resolved outside plugin directory; skipping. Dir={Dir} Assembly={Assembly} ResolvedPath={AssemblyPath}", pluginDir, manifest.Assembly, assemblyPath);
                 return null;
             }
 
-            var assemblyPath = Path.Combine(pluginDir, manifest.Assembly);
             if (!File.Exists(assemblyPath))
             {
                 _logger.LogWarning("Plugin assembly not found. Dir={Dir} Assembly={Assembly} ResolvedPath={AssemblyPath}", pluginDir, manifest.Assembly, assemblyPath);
                 return null;
             }
 
-            var loadContext = new PluginLoadContext(assemblyPath);
+            loadContext = new PluginLoadContext(assemblyPath);
             var assembly = loadContext.LoadFromAssemblyPath(assemblyPath);
             var type = assembly.GetType(manifest.Type, throwOnError: false, ignoreCase: false);
             if (type is null)
@@ -142,6 +167,12 @@ public sealed class ExternalPluginLoader
                 !string.Equals(identity.Id, manifest.Id, StringComparison.OrdinalIgnoreCase))
             {
                 _logger.LogWarning("Plugin identity mismatch. ManifestId={ManifestId} PluginId={PluginId} Type={Type}", manifest.Id, identity.Id, type.FullName);
+                if (plugin is IDisposable disposable)
+                {
+                    try { disposable.Dispose(); } catch { }
+                }
+
+                plugin = null;
                 return null;
             }
 
@@ -152,22 +183,174 @@ public sealed class ExternalPluginLoader
                 Directory.CreateDirectory(dataDir);
                 var pluginLogger = _loggerFactory.CreateLogger($"ExternalPlugin:{manifest.Id}");
                 var host = new PluginHost(manifest.Id, pluginDir, dataDir, pluginLogger);
-                hostAware.Initialize(host);
+                try
+                {
+                    hostAware.Initialize(host);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to initialize external plugin host context. Id={PluginId} Type={Type} Dir={Dir}", manifest.Id, type.FullName, pluginDir);
+                    if (plugin is IDisposable disposable)
+                    {
+                        try { disposable.Dispose(); } catch { }
+                    }
+
+                    plugin = null;
+                    return null;
+                }
             }
 
-            return plugin;
+            return new LoadedExternalPlugin(manifest.Id, plugin, loadContext);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse plugin manifest JSON. Dir={Dir} Manifest={ManifestPath}", pluginDir, manifestPath);
+            return null;
+        }
+        catch (BadImageFormatException ex)
+        {
+            _logger.LogError(ex, "Plugin assembly is not a valid .NET assembly. Dir={Dir} Manifest={ManifestPath}", pluginDir, manifestPath);
+            return null;
         }
         catch (Exception ex)
         {
-            if (plugin is IDisposable disposable)
-            {
-                try { disposable.Dispose(); } catch { }
-            }
-
             _logger.LogError(ex, "Failed to load external plugin. Dir={Dir} Manifest={ManifestPath}", pluginDir, manifestPath);
-
             return null;
         }
+        finally
+        {
+            if (plugin is null && loadContext is not null)
+            {
+                try { loadContext.Unload(); } catch { }
+            }
+        }
+    }
+
+    private bool TryReadManifest(string manifestPath, out ExternalPluginManifest manifest)
+    {
+        manifest = null!;
+
+        try
+        {
+            var json = File.ReadAllText(manifestPath);
+            var parsed = JsonSerializer.Deserialize<ExternalPluginManifest>(json, ManifestJsonOptions);
+            if (parsed is null)
+            {
+                _logger.LogWarning("Failed to parse plugin manifest. Path={ManifestPath}", manifestPath);
+                return false;
+            }
+
+            manifest = parsed;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to read plugin manifest. Path={ManifestPath}", manifestPath);
+            return false;
+        }
+    }
+
+    private static bool ValidateManifest(string manifestPath, ExternalPluginManifest manifest, out string error)
+    {
+        error = string.Empty;
+
+        if (manifest.ApiVersion != 1)
+        {
+            error = $"Unsupported apiVersion={manifest.ApiVersion}.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(manifest.Id))
+        {
+            error = "Missing 'id'.";
+            return false;
+        }
+
+        manifest.Id = manifest.Id.Trim();
+
+        if (!IsValidPluginId(manifest.Id))
+        {
+            error = $"Invalid plugin id '{manifest.Id}'. Allowed chars: [A-Za-z0-9._-]";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(manifest.Assembly))
+        {
+            error = "Missing 'assembly'.";
+            return false;
+        }
+
+        manifest.Assembly = manifest.Assembly.Trim();
+        if (!string.Equals(manifest.Assembly, Path.GetFileName(manifest.Assembly), StringComparison.Ordinal))
+        {
+            error = "'assembly' must be a file name (no directories).";
+            return false;
+        }
+
+        if (!manifest.Assembly.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+        {
+            error = "'assembly' must point to a .dll file.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(manifest.Type))
+        {
+            error = "Missing 'type'.";
+            return false;
+        }
+
+        manifest.Type = manifest.Type.Trim();
+        if (manifest.Type.IndexOf('`') >= 0)
+        {
+            error = "Generic types are not supported in manifest 'type'.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(manifestPath))
+        {
+            error = "Invalid manifest path.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private void WarnIfBundledSharedAssemblies(string pluginDir, string pluginId)
+    {
+        foreach (var fileName in SharedAssemblyFileNames)
+        {
+            var path = Path.Combine(pluginDir, fileName);
+            if (File.Exists(path))
+            {
+                _logger.LogWarning("Plugin directory contains a host-shared assembly '{AssemblyFile}'. It will be ignored (loaded from default context). Consider removing it. Id={PluginId} Dir={Dir}", fileName, pluginId, pluginDir);
+            }
+        }
+    }
+
+    private static bool IsValidPluginId(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return false;
+        }
+
+        if (id.Length > 100)
+        {
+            return false;
+        }
+
+        foreach (var ch in id)
+        {
+            if (char.IsLetterOrDigit(ch) || ch is '.' or '_' or '-')
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     private static string GetSafeDirectoryName(string value)
