@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FlashLaunch.PluginSdk\FlashLaunch.PluginSdk.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="plugin.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
+    <ProjectReference Include="..\FlashLaunch.PluginHostSdk\FlashLaunch.PluginHostSdk.csproj" />
   </ItemGroup>
 
 </Project>

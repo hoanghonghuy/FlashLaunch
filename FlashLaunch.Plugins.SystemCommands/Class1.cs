@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FlashLaunch.Core.Abstractions;
@@ -8,11 +7,12 @@ using FlashLaunch.Core.Models;
 
 namespace FlashLaunch.Plugins.SystemCommands;
 
-public sealed class SystemCommandsPlugin : IPlugin, IPluginIdentity
+public sealed class SystemCommandsPlugin : IPlugin, IPluginIdentity, IPluginHostAware
 {
     private readonly IStringLocalizer _localizer;
     private readonly ISystemCommandState _state;
     private readonly IReadOnlyDictionary<string, SystemCommand> _commands;
+    private IPluginHost? _host;
 
     public SystemCommandsPlugin(IStringLocalizer localizer, ISystemCommandState state)
     {
@@ -24,23 +24,23 @@ public sealed class SystemCommandsPlugin : IPlugin, IPluginIdentity
             ["shutdown"] = new SystemCommand(
                 _localizer["Plugin_System_Shutdown_Title"],
                 _localizer["Plugin_System_Shutdown_Description"],
-                () => Process.Start("shutdown", "/s /t 0")),
+                () => StartProcessOrThrow("shutdown", "/s /t 0")),
             ["restart"] = new SystemCommand(
                 _localizer["Plugin_System_Restart_Title"],
                 _localizer["Plugin_System_Restart_Description"],
-                () => Process.Start("shutdown", "/r /t 0")),
+                () => StartProcessOrThrow("shutdown", "/r /t 0")),
             ["sleep"] = new SystemCommand(
                 _localizer["Plugin_System_Sleep_Title"],
                 _localizer["Plugin_System_Sleep_Description"],
-                () => Process.Start("rundll32.exe", "powrprof.dll,SetSuspendState 0,1,0")),
+                () => StartProcessOrThrow("rundll32.exe", "powrprof.dll,SetSuspendState 0,1,0")),
             ["lock"] = new SystemCommand(
                 _localizer["Plugin_System_Lock_Title"],
                 _localizer["Plugin_System_Lock_Description"],
-                () => Process.Start("rundll32.exe", "user32.dll,LockWorkStation")),
+                () => StartProcessOrThrow("rundll32.exe", "user32.dll,LockWorkStation")),
             ["empty trash"] = new SystemCommand(
                 _localizer["Plugin_System_EmptyRecycleBin_Title"],
                 _localizer["Plugin_System_EmptyRecycleBin_Description"],
-                () => Process.Start("PowerShell", "-Command Clear-RecycleBin -Force"))
+                () => StartProcessOrThrow("PowerShell", "-Command Clear-RecycleBin -Force"))
         };
     }
 
@@ -106,6 +106,24 @@ public sealed class SystemCommandsPlugin : IPlugin, IPluginIdentity
         command.Action();
 
         return Task.CompletedTask;
+    }
+
+    public void Initialize(IPluginHost host)
+    {
+        _host = host;
+    }
+
+    private void StartProcessOrThrow(string fileName, string? arguments)
+    {
+        if (_host is null)
+        {
+            throw new InvalidOperationException("Plugin host is not initialized.");
+        }
+
+        if (!_host.TryStartProcess(fileName, arguments))
+        {
+            throw new InvalidOperationException($"Failed to start process: {fileName} {arguments}");
+        }
     }
 
     private sealed record SystemCommand(string Title, string Description, Action Action);

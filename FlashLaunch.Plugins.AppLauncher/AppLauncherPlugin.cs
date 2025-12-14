@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -13,22 +12,25 @@ using FlashLaunch.Core.Utilities;
 
 namespace FlashLaunch.Plugins.AppLauncher;
 
-public sealed class AppLauncherPlugin : IPlugin, IPluginIdentity
+public sealed class AppLauncherPlugin : IPlugin, IPluginIdentity, IPluginHostAware
 {
     private readonly IStringLocalizer _localizer;
     private readonly IAppIndexPathProvider _pathProvider;
     private Lazy<IReadOnlyList<AppEntry>> _index = null!;
     private readonly ConcurrentDictionary<string, int> _usageCounts = new(StringComparer.OrdinalIgnoreCase);
-    private readonly string _usageFilePath;
+    private string _usageFilePath;
     private readonly object _usageLock = new();
+    private IPluginHost? _host;
 
     public AppLauncherPlugin(IStringLocalizer localizer, IAppIndexPathProvider pathProvider)
     {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _pathProvider = pathProvider ?? throw new ArgumentNullException(nameof(pathProvider));
-        _usageFilePath = AppDataPaths.UsageCachePath;
+        _usageFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "FlashLaunch",
+            "usage-apps.json");
         InitializeIndex();
-        LoadUsageCounts();
 
         // Pre-warm the index in the background so the first query feels responsive.
         _ = Task.Run(() =>
@@ -124,23 +126,19 @@ public sealed class AppLauncherPlugin : IPlugin, IPluginIdentity
         return Task.CompletedTask;
     }
 
-    private static void Launch(string path)
+    private void Launch(string path)
     {
         if (!File.Exists(path))
         {
             throw new FileNotFoundException("Executable not found.", path);
         }
 
-        var startInfo = new ProcessStartInfo(path)
+        if (_host is null)
         {
-            UseShellExecute = true
-        };
-
-        var process = Process.Start(startInfo);
-        if (process is null)
-        {
-            throw new InvalidOperationException("Failed to start process.");
+            throw new InvalidOperationException("Plugin host is not initialized.");
         }
+
+        _host.OpenPath(path);
     }
 
     private double GetUsageBoost(string launchPath)
@@ -339,6 +337,13 @@ public sealed class AppLauncherPlugin : IPlugin, IPluginIdentity
         {
             // ignore write failures
         }
+    }
+
+    public void Initialize(IPluginHost host)
+    {
+        _host = host;
+        _usageFilePath = Path.Combine(host.DataDirectory, "usage-apps.json");
+        LoadUsageCounts();
     }
 
     private sealed record AppEntry(

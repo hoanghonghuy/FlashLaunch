@@ -194,6 +194,8 @@ public partial class App : System.Windows.Application
         return new FileLoggerProvider(pluginPath, LogLevel.Debug, (category, level) =>
             level >= LogLevel.Debug &&
             category is not null &&
-            PluginCategories.Contains(category));
+            (PluginCategories.Contains(category) ||
+             category.StartsWith("ExternalPlugin:", StringComparison.Ordinal) ||
+             category.StartsWith("BuiltInPlugin:", StringComparison.Ordinal)));
     }
 }

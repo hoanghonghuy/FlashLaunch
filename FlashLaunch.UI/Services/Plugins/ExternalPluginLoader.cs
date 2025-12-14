@@ -19,10 +19,12 @@ public sealed class ExternalPluginLoader
     };
 
     private readonly ILogger<ExternalPluginLoader> _logger;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public ExternalPluginLoader(ILogger<ExternalPluginLoader> logger)
+    public ExternalPluginLoader(ILogger<ExternalPluginLoader> logger, ILoggerFactory loggerFactory)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     public IReadOnlyList<IPlugin> LoadPlugins()
@@ -143,6 +145,16 @@ public sealed class ExternalPluginLoader
                 return null;
             }
 
+            if (plugin is IPluginHostAware hostAware)
+            {
+                var safeId = GetSafeDirectoryName(manifest.Id);
+                var dataDir = Path.Combine(AppDataPaths.GetRoot(), "plugin-data", safeId);
+                Directory.CreateDirectory(dataDir);
+                var pluginLogger = _loggerFactory.CreateLogger($"ExternalPlugin:{manifest.Id}");
+                var host = new PluginHost(manifest.Id, pluginDir, dataDir, pluginLogger);
+                hostAware.Initialize(host);
+            }
+
             return plugin;
         }
         catch (Exception ex)
@@ -156,5 +168,25 @@ public sealed class ExternalPluginLoader
 
             return null;
         }
+    }
+
+    private static string GetSafeDirectoryName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "unknown";
+        }
+
+        var invalid = Path.GetInvalidFileNameChars();
+        var chars = value.ToCharArray();
+        for (var i = 0; i < chars.Length; i++)
+        {
+            if (invalid.Contains(chars[i]))
+            {
+                chars[i] = '_';
+            }
+        }
+
+        return new string(chars);
     }
 }

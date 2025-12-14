@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FlashLaunch.Core.Abstractions;
 using FlashLaunch.Core.Models;
+using Microsoft.Extensions.Logging;
 
 namespace FlashLaunch.SamplePlugins.HelloWorld;
 
-public sealed class HelloWorldPlugin : IPlugin, IPluginIdentity
+public sealed class HelloWorldPlugin : IPlugin, IPluginIdentity, IPluginHostAware
 {
+    private IPluginHost? _host;
+
     public string Id => "sample.hello_world";
 
     public string Name => "Hello World";
@@ -50,7 +52,15 @@ public sealed class HelloWorldPlugin : IPlugin, IPluginIdentity
             return Task.CompletedTask;
         }
 
-        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        _host?.Logger.LogInformation("Opening URL from plugin: {Url}", url);
+        _host?.OpenUrl(url);
         return Task.CompletedTask;
+    }
+
+    public void Initialize(IPluginHost host)
+    {
+        _host = host;
+
+        _host.Logger.LogInformation("Plugin initialized. PluginId={PluginId} DataDir={DataDir}", host.PluginId, host.DataDirectory);
     }
 }

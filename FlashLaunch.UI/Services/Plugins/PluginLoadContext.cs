@@ -25,6 +25,21 @@ internal sealed class PluginLoadContext : AssemblyLoadContext
             return null;
         }
 
+        if (string.Equals(assemblyName.Name, "FlashLaunch.PluginSdk", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (string.Equals(assemblyName.Name, "FlashLaunch.PluginHostSdk", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        if (string.Equals(assemblyName.Name, "Microsoft.Extensions.Logging.Abstractions", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
         if (string.Equals(assemblyName.Name, "PresentationFramework", StringComparison.Ordinal) ||
             string.Equals(assemblyName.Name, "PresentationCore", StringComparison.Ordinal) ||
             string.Equals(assemblyName.Name, "WindowsBase", StringComparison.Ordinal) ||

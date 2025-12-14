@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FlashLaunch.Core.Abstractions;
@@ -8,7 +7,7 @@ using FlashLaunch.Core.Models;
 
 namespace FlashLaunch.Plugins.WebSearch;
 
-public sealed class WebSearchPlugin : IPlugin, IPluginIdentity
+public sealed class WebSearchPlugin : IPlugin, IPluginIdentity, IPluginHostAware
 {
     private static readonly IReadOnlyDictionary<string, string> SearchProviders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
@@ -19,6 +18,7 @@ public sealed class WebSearchPlugin : IPlugin, IPluginIdentity
 
     private readonly IStringLocalizer _localizer;
     private readonly IWebSearchProviderState _providerState;
+    private IPluginHost? _host;
 
     public WebSearchPlugin(IStringLocalizer localizer, IWebSearchProviderState providerState)
     {
@@ -84,13 +84,19 @@ public sealed class WebSearchPlugin : IPlugin, IPluginIdentity
 
         var encoded = Uri.EscapeDataString(payload.Query);
         var url = string.Format(template, encoded);
-        var process = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        if (process is null)
+        if (_host is null)
         {
-            throw new InvalidOperationException("Failed to launch web browser.");
+            throw new InvalidOperationException("Plugin host is not initialized.");
         }
 
+        _host.OpenUrl(url);
+
         return Task.CompletedTask;
+    }
+
+    public void Initialize(IPluginHost host)
+    {
+        _host = host;
     }
 
     private string ResolveProviderName(string prefix) => prefix.ToLowerInvariant() switch
