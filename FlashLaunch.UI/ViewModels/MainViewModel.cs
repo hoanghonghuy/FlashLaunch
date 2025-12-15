@@ -95,6 +95,17 @@ public sealed class MainViewModel : ObservableObject
 
     public void RefreshResults() => ScheduleSearch(immediate: true);
 
+    public void ClearResults()
+    {
+        var previous = Interlocked.Exchange(ref _searchCts, null);
+        previous?.Cancel();
+        previous?.Dispose();
+
+        Results.Clear();
+        SelectedResult = null;
+        IsLoading = false;
+    }
+
     public void NotifySettingsApplied()
     {
         var text = LocalizationManager.GetString("Status_SettingsApplied");

@@ -8,7 +8,7 @@ internal sealed class PluginLoadContext : AssemblyLoadContext
 {
     private readonly AssemblyDependencyResolver _resolver;
 
-    public PluginLoadContext(string pluginMainAssemblyPath)
+    public PluginLoadContext(string pluginMainAssemblyPath) : base(isCollectible: true)
     {
         _resolver = new AssemblyDependencyResolver(pluginMainAssemblyPath);
     }

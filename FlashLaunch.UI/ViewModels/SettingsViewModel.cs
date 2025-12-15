@@ -200,6 +200,7 @@ public sealed class SettingsViewModel : ObservableObject
 
     public void ReloadPlugins()
     {
+        _mainViewModel.ClearResults();
         _pluginCatalog.Reload();
         RebuildPluginToggles(preserveCurrentSelections: true);
         ValidationMessage = LocalizationManager.GetString("Settings_Plugins_Reloaded");

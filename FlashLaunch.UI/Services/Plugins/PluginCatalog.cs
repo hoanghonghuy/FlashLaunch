@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Loader;
 using FlashLaunch.Core.Abstractions;
 using FlashLaunch.Core.Utilities;
 using Microsoft.Extensions.Logging;
@@ -53,11 +54,80 @@ public sealed class PluginCatalog : IPluginCatalog
 
     public void Reload()
     {
+        IReadOnlyList<IPlugin>? previous;
+
         lock (_gate)
         {
+            previous = _cached;
             _cached = null;
             _logger.LogInformation("Plugin catalog cache cleared. Plugins will be re-scanned on next access.");
         }
+
+        if (previous is not null)
+        {
+            DisposeAndUnloadExternalPlugins(previous);
+        }
+    }
+
+    private void DisposeAndUnloadExternalPlugins(IReadOnlyList<IPlugin> plugins)
+    {
+        var contexts = new HashSet<AssemblyLoadContext>();
+        var disposedCount = 0;
+
+        foreach (var plugin in plugins)
+        {
+            var alc = AssemblyLoadContext.GetLoadContext(plugin.GetType().Assembly);
+            if (alc is null || alc == AssemblyLoadContext.Default || !alc.IsCollectible)
+            {
+                continue;
+            }
+
+            if (plugin is IDisposable disposable)
+            {
+                try
+                {
+                    disposable.Dispose();
+                    disposedCount++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to dispose plugin during reload. Plugin={PluginType}", plugin.GetType().FullName);
+                }
+            }
+
+            contexts.Add(alc);
+        }
+
+        var unloadCount = 0;
+        var weakRefs = new List<WeakReference>();
+        foreach (var context in contexts)
+        {
+            try
+            {
+                weakRefs.Add(new WeakReference(context));
+                context.Unload();
+                unloadCount++;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to unload plugin load context during reload. Context={Context}", context.Name);
+            }
+        }
+
+        contexts.Clear();
+
+        if (unloadCount > 0)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+
+        var remaining = unloadCount > 0
+            ? weakRefs.Count(wr => wr.IsAlive)
+            : 0;
+
+        _logger.LogInformation("Reload cleanup done. Disposed={DisposedCount} UnloadedContexts={UnloadedCount} RemainingContexts={Remaining}", disposedCount, unloadCount, remaining);
     }
 
     private void InitializeBuiltInHosts(IReadOnlyList<IPlugin> builtIn)
