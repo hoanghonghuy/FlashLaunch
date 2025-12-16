@@ -137,6 +137,11 @@ public partial class SettingsWindow : Window
         _viewModel.ReloadPlugins();
     }
 
+    private async void OnHealthCheckPluginsClick(object sender, RoutedEventArgs e)
+    {
+        await _viewModel.HealthCheckPluginsAsync();
+    }
+
     private void OnResetUsageLogsClick(object sender, RoutedEventArgs e)
     {
         _viewModel.ResetUsageLogs();

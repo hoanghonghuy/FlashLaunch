@@ -634,6 +634,11 @@
                                             <TextBlock Style="{StaticResource SettingsSectionHeaderText}"
                                                        Text="{DynamicResource Settings_Plugins}" />
                                             <Button DockPanel.Dock="Right"
+                                                    Content="{DynamicResource Settings_Plugins_HealthCheck}"
+                                                    Style="{StaticResource SettingsButtonStyle}"
+                                                    Margin="0,0,8,0"
+                                                    Click="OnHealthCheckPluginsClick" />
+                                            <Button DockPanel.Dock="Right"
                                                     Content="{DynamicResource Settings_ReloadPlugins}"
                                                     Style="{StaticResource SettingsButtonStyle}"
                                                     Click="OnReloadPluginsClick" />

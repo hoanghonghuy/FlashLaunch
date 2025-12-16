@@ -40,7 +40,8 @@ public partial class App : System.Windows.Application
     {
         typeof(ExternalPluginLoader).FullName!,
         typeof(PluginCatalog).FullName!,
-        typeof(PluginLoadContext).FullName!
+        typeof(PluginLoadContext).FullName!,
+        typeof(PluginHealthCheckService).FullName!
     };
 
     public IServiceProvider Services => _host!.Services;
@@ -75,6 +76,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IAppIndexPathProvider, AppIndexPathProvider>();
 
                 services.AddSingleton<ExternalPluginLoader>();
+                services.AddSingleton<PluginHealthCheckService>();
                 services.AddSingleton<IPluginCatalog, PluginCatalog>();
 
                 services.AddSingleton<ConfigService>();

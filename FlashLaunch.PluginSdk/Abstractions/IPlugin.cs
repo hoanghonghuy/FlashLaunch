@@ -17,3 +17,8 @@ public interface IPlugin
 
     Task ExecuteAsync(SearchResult result, CancellationToken cancellationToken = default);
 }
+
+public interface IPluginSelfTest
+{
+    Task SelfTestAsync(CancellationToken cancellationToken = default);
+}

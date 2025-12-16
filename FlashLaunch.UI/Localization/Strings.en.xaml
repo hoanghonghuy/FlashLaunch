@@ -31,6 +31,7 @@
   <sys:String x:Key="Settings_RefreshIndex">Refresh Index</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs">Reset Usage + Logs</sys:String>
   <sys:String x:Key="Settings_ReloadPlugins">Reload plugins</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck">Health check</sys:String>
   <sys:String x:Key="Settings_IconCache_Enable">Persist icon cache to disk (faster launch)</sys:String>
   <sys:String x:Key="Settings_IconCache_Clear">Clear icon cache</sys:String>
   <sys:String x:Key="Settings_Cancel">Cancel</sys:String>
@@ -68,6 +69,9 @@
   <sys:String x:Key="Settings_ResetUsageLogs_Success">Usage cache &amp; logs cleared</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs_Failed">Unable to reset usage/logs.</sys:String>
   <sys:String x:Key="Settings_Plugins_Reloaded">Plugins reloaded</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_NoPlugins">No external plugins found to check.</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_PassedSummary">Health check OK. Passed {0} plugin(s).</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_FailedSummary">Health check failed. Passed {0}, failed {1}. See plugin log for details.</sys:String>
   <sys:String x:Key="Settings_IconCache_Cleared">Icon cache cleared.</sys:String>
   <sys:String x:Key="Settings_IconCache_ClearFailed">Could not clear icon cache.</sys:String>
   <sys:String x:Key="Settings_AppIndex_Refreshed">App index refreshed</sys:String>

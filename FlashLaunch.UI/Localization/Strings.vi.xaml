@@ -31,6 +31,7 @@
   <sys:String x:Key="Settings_RefreshIndex">Làm mới chỉ mục</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs">Xóa thống kê + log</sys:String>
   <sys:String x:Key="Settings_ReloadPlugins">Tải lại plugins</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck">Kiểm tra plugins</sys:String>
   <sys:String x:Key="Settings_IconCache_Enable">Lưu icon xuống đĩa (mở nhanh hơn)</sys:String>
   <sys:String x:Key="Settings_IconCache_Clear">Xóa cache icon</sys:String>
   <sys:String x:Key="Settings_Cancel">Hủy</sys:String>
@@ -68,6 +69,9 @@
   <sys:String x:Key="Settings_ResetUsageLogs_Success">Usage cache &amp; logs đã được xóa</sys:String>
   <sys:String x:Key="Settings_ResetUsageLogs_Failed">Không thể reset usage/logs.</sys:String>
   <sys:String x:Key="Settings_Plugins_Reloaded">Đã tải lại danh sách plugins</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_NoPlugins">Không có external plugins để kiểm tra.</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_PassedSummary">Kiểm tra OK. Đạt {0} plugin(s).</sys:String>
+  <sys:String x:Key="Settings_Plugins_HealthCheck_FailedSummary">Kiểm tra lỗi. Đạt {0}, lỗi {1}. Xem plugin log để biết chi tiết.</sys:String>
   <sys:String x:Key="Settings_IconCache_Cleared">Đã xoá cache icon.</sys:String>
   <sys:String x:Key="Settings_IconCache_ClearFailed">Không thể xoá cache icon.</sys:String>
   <sys:String x:Key="Settings_AppIndex_Refreshed">Đã làm mới chỉ mục ứng dụng</sys:String>

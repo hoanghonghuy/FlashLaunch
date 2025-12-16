@@ -7,6 +7,7 @@ using FlashLaunch.Core.Abstractions;
 using FlashLaunch.UI.Configuration;
 using FlashLaunch.UI.Localization;
 using FlashLaunch.UI.Services;
+using FlashLaunch.UI.Services.Plugins;
 using FlashLaunch.UI.Theming;
 
 namespace FlashLaunch.UI.ViewModels;
@@ -21,6 +22,7 @@ public sealed class SettingsViewModel : ObservableObject
     private readonly IPluginStateProvider _pluginStateProvider;
     private readonly MainViewModel _mainViewModel;
     private readonly MaintenanceService _maintenanceService;
+    private readonly PluginHealthCheckService _pluginHealthCheckService;
 
     public SettingsViewModel(
         AppConfig config,
@@ -29,7 +31,8 @@ public sealed class SettingsViewModel : ObservableObject
         ShellController shellController,
         IPluginStateProvider pluginStateProvider,
         MainViewModel mainViewModel,
-        MaintenanceService maintenanceService)
+        MaintenanceService maintenanceService,
+        PluginHealthCheckService pluginHealthCheckService)
     {
         _config = config;
         _configService = configService;
@@ -38,6 +41,7 @@ public sealed class SettingsViewModel : ObservableObject
         _pluginStateProvider = pluginStateProvider;
         _mainViewModel = mainViewModel;
         _maintenanceService = maintenanceService;
+        _pluginHealthCheckService = pluginHealthCheckService;
 
         OriginalHotkey = config.Hotkey?.Trim() ?? string.Empty;
         Hotkey = OriginalHotkey;
@@ -206,6 +210,42 @@ public sealed class SettingsViewModel : ObservableObject
         ValidationMessage = LocalizationManager.GetString("Settings_Plugins_Reloaded");
         IsValidationError = false;
         _mainViewModel.RefreshResults();
+    }
+
+    public async System.Threading.Tasks.Task HealthCheckPluginsAsync()
+    {
+        try
+        {
+            var summary = await _pluginHealthCheckService.RunExternalPluginsAsync(TimeSpan.FromSeconds(2));
+
+            if (summary.Total == 0)
+            {
+                ValidationMessage = LocalizationManager.GetString("Settings_Plugins_HealthCheck_NoPlugins");
+                IsValidationError = false;
+                return;
+            }
+
+            if (summary.Failed > 0)
+            {
+                ValidationMessage = string.Format(
+                    LocalizationManager.GetString("Settings_Plugins_HealthCheck_FailedSummary"),
+                    summary.Passed,
+                    summary.Failed);
+                IsValidationError = true;
+            }
+            else
+            {
+                ValidationMessage = string.Format(
+                    LocalizationManager.GetString("Settings_Plugins_HealthCheck_PassedSummary"),
+                    summary.Passed);
+                IsValidationError = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ValidationMessage = ex.Message;
+            IsValidationError = true;
+        }
     }
 
     private void RebuildPluginToggles(bool preserveCurrentSelections)
