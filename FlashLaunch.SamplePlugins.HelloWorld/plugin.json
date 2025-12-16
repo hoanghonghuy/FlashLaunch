@@ -1,6 +1,0 @@
-{
-  "apiVersion": 1,
-  "id": "sample.hello_world",
-  "assembly": "FlashLaunch.SamplePlugins.HelloWorld.dll",
-  "type": "FlashLaunch.SamplePlugins.HelloWorld.HelloWorldPlugin"
-}
