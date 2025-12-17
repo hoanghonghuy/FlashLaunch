@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FlashLaunch.UI.ViewModels;
 
-public sealed class MainViewModel : ObservableObject
+public sealed class MainViewModel : ObservableObject, IDisposable
 {
     private readonly IQueryDispatcher _queryDispatcher;
     private readonly ILogger<MainViewModel> _logger;
@@ -26,6 +26,7 @@ public sealed class MainViewModel : ObservableObject
     private readonly AppConfig _config;
     private readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(120);
     private readonly SemaphoreSlim _searchLock = new(1, 1);
+    private bool _disposed;
 
     private CancellationTokenSource? _searchCts;
     private string _queryText = string.Empty;
@@ -127,6 +128,11 @@ public sealed class MainViewModel : ObservableObject
 
     private void ScheduleSearch(bool immediate = false)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         var newCts = new CancellationTokenSource();
         var previous = Interlocked.Exchange(ref _searchCts, newCts);
         previous?.Cancel();
@@ -406,5 +412,19 @@ public sealed class MainViewModel : ObservableObject
         }
 
         StatusMessage = null;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _searchLock.Dispose();
+        _searchCts?.Dispose();
+        _statusCts?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

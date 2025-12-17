@@ -11,6 +11,8 @@ namespace FlashLaunch.Plugins.Calculator;
 
 public sealed class CalculatorPlugin : IPlugin, IPluginIdentity
 {
+    private static readonly object _evalLock = new();
+    private static readonly DataTable _dataTable = CreateDataTable();
     private readonly IStringLocalizer _localizer;
 
     public CalculatorPlugin(IStringLocalizer localizer)
@@ -59,6 +61,7 @@ public sealed class CalculatorPlugin : IPlugin, IPluginIdentity
 
     public Task ExecuteAsync(SearchResult result, CancellationToken cancellationToken = default)
     {
+        // Execution is handled in UI layer (clipboard copy + status). No-op here.
         return Task.CompletedTask;
     }
 
@@ -79,14 +82,25 @@ public sealed class CalculatorPlugin : IPlugin, IPluginIdentity
     {
         try
         {
-            var dataTable = new DataTable();
-            dataTable.Locale = CultureInfo.InvariantCulture;
-            var result = dataTable.Compute(expression, null);
-            return Convert.ToDouble(result, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+            lock (_evalLock)
+            {
+                var result = _dataTable.Compute(expression, null);
+                return Convert.ToDouble(result, CultureInfo.InvariantCulture)
+                    .ToString(CultureInfo.InvariantCulture);
+            }
         }
         catch
         {
             return null;
         }
+    }
+
+    private static DataTable CreateDataTable()
+    {
+        var table = new DataTable
+        {
+            Locale = CultureInfo.InvariantCulture
+        };
+        return table;
     }
 }
