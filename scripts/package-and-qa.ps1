@@ -41,7 +41,7 @@ Write-Host "Publishing portable build (framework-dependent)..."
 dotnet publish $uiProject `
     -c $Configuration `
     -r $Runtime `
-    --self-contained false `
+    --no-self-contained `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:PublishTrimmed=false `
