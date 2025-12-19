@@ -9,17 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FlashLaunch.UI.Services;
 
-public sealed class TrayIconService : IDisposable
+public sealed class TrayIconService(IServiceProvider serviceProvider, ShellController shellController) : IDisposable
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ShellController _shellController;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly ShellController _shellController = shellController;
     private NotifyIcon? _notifyIcon;
-
-    public TrayIconService(IServiceProvider serviceProvider, ShellController shellController)
-    {
-        _serviceProvider = serviceProvider;
-        _shellController = shellController;
-    }
 
     public void Initialize()
     {
@@ -61,17 +55,35 @@ public sealed class TrayIconService : IDisposable
     {
         System.Windows.Application.Current.Dispatcher.Invoke(() =>
         {
+            SettingsWindow? existingWindow = null;
+            foreach (Window openWindow in System.Windows.Application.Current.Windows)
+            {
+                if (openWindow is SettingsWindow settingsWindow)
+                {
+                    existingWindow = settingsWindow;
+                    break;
+                }
+            }
+
+            if (existingWindow is not null)
+            {
+                if (existingWindow.WindowState == WindowState.Minimized)
+                {
+                    existingWindow.WindowState = WindowState.Normal;
+                }
+
+                existingWindow.ShowInTaskbar = true;
+                existingWindow.Topmost = false;
+                existingWindow.Activate();
+                existingWindow.Focus();
+                return;
+            }
+
             var window = _serviceProvider.GetRequiredService<SettingsWindow>();
-            var owner = System.Windows.Application.Current.MainWindow;
-            if (owner is not null && !ReferenceEquals(owner, window))
-            {
-                window.Owner = owner;
-            }
-            else
-            {
-                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            }
+            window.ShowInTaskbar = true;
+            window.Topmost = false;
             window.Show();
+            window.Activate();
             window.Focus();
         });
     }
@@ -124,15 +136,18 @@ public sealed class TrayIconService : IDisposable
             item.ForeColor = foreground;
         }
 
-        menu.ItemAdded += (_, e) =>
-        {
-            if (e.Item is null)
-            {
-                return;
-            }
+        menu.ItemAdded -= OnMenuItemAdded;
+        menu.ItemAdded += OnMenuItemAdded;
+    }
 
-            e.Item.BackColor = background;
-            e.Item.ForeColor = foreground;
-        };
+    private static void OnMenuItemAdded(object? sender, ToolStripItemEventArgs e)
+    {
+        if (sender is not ContextMenuStrip menu || e.Item is null)
+        {
+            return;
+        }
+
+        e.Item.BackColor = menu.BackColor;
+        e.Item.ForeColor = menu.ForeColor;
     }
 }

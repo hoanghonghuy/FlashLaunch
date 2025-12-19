@@ -10,10 +10,11 @@ internal static class ShortcutResolver
 
     public static bool TryResolve(string shortcutPath, out ShortcutInfo info)
     {
+        IShellLinkW? link = null;
         try
         {
             var shellLinkType = Type.GetTypeFromCLSID(ShellLinkClsid, throwOnError: true)!;
-            var link = (IShellLinkW)Activator.CreateInstance(shellLinkType)!;
+            link = (IShellLinkW)Activator.CreateInstance(shellLinkType)!;
             ((IPersistFile)link).Load(shortcutPath, 0);
 
             var targetBuilder = new StringBuilder(260);
@@ -40,10 +41,24 @@ internal static class ShortcutResolver
             info = new ShortcutInfo(null, null, null, 0);
             return false;
         }
+        finally
+        {
+            try
+            {
+                if (link is not null && Marshal.IsComObject(link))
+                {
+                    Marshal.FinalReleaseComObject(link);
+                }
+            }
+            catch
+            {
+            }
+        }
     }
 
     internal sealed record ShortcutInfo(string? DisplayName, string? TargetPath, string? IconPath, int IconIndex);
 
+ #pragma warning disable SYSLIB1096
     [ComImport]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     [Guid("000214F9-0000-0000-C000-000000000046")]
@@ -82,28 +97,29 @@ internal static class ShortcutResolver
         void SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
         void GetCurFile([MarshalAs(UnmanagedType.LPWStr)] out string ppszFileName);
     }
+ #pragma warning restore SYSLIB1096
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct WIN32_FIND_DATAW
     {
-        public uint dwFileAttributes;
-        public FILETIME ftCreationTime;
-        public FILETIME ftLastAccessTime;
-        public FILETIME ftLastWriteTime;
-        public uint nFileSizeHigh;
-        public uint nFileSizeLow;
-        public uint dwReserved0;
-        public uint dwReserved1;
+        public uint DwFileAttributes;
+        public FILETIME FtCreationTime;
+        public FILETIME FtLastAccessTime;
+        public FILETIME FtLastWriteTime;
+        public uint NFileSizeHigh;
+        public uint NFileSizeLow;
+        public uint DwReserved0;
+        public uint DwReserved1;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-        public string cFileName;
+        public string CFileName;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
-        public string cAlternateFileName;
+        public string CAlternateFileName;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct FILETIME
     {
-        public uint dwLowDateTime;
-        public uint dwHighDateTime;
+        public uint DwLowDateTime;
+        public uint DwHighDateTime;
     }
 }

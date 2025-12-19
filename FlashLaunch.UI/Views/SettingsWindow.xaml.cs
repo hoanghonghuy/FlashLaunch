@@ -1,6 +1,4 @@
-using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using FlashLaunch.UI.ViewModels;
 using FlashLaunch.UI.Localization;
@@ -69,6 +67,11 @@ public partial class SettingsWindow : Window
     private void OnCancelClick(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void OnMinimizeClick(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
     }
 
     private void OnOkClick(object sender, RoutedEventArgs e)
@@ -227,8 +230,7 @@ public partial class SettingsWindow : Window
             return;
         }
 
-        var element = FindName(elementName) as FrameworkElement;
-        if (element is null)
+        if (FindName(elementName) is not FrameworkElement element)
         {
             return;
         }

@@ -26,6 +26,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly AppConfig _config;
     private readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(120);
     private readonly SemaphoreSlim _searchLock = new(1, 1);
+    private SynchronizationContext? _uiContext;
     private bool _disposed;
 
     private CancellationTokenSource? _searchCts;
@@ -49,12 +50,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         _iconService = iconService ?? throw new ArgumentNullException(nameof(iconService));
         _config = config ?? throw new ArgumentNullException(nameof(config));
-        Results = new ObservableCollection<SearchResultViewModel>();
+        _uiContext = SynchronizationContext.Current;
 
         ScheduleSearch();
     }
 
-    public ObservableCollection<SearchResultViewModel> Results { get; } = new();
+    public ObservableCollection<SearchResultViewModel> Results { get; } = [];
 
     public string QueryText
     {
@@ -99,21 +100,37 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public void ClearResults()
     {
         var previous = Interlocked.Exchange(ref _searchCts, null);
-        previous?.Cancel();
-        previous?.Dispose();
+        if (previous is not null)
+        {
+            try
+            {
+                previous.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
 
-        Results.Clear();
-        SelectedResult = null;
-        IsLoading = false;
+            previous.Dispose();
+        }
+
+        RunOnUiThread(() =>
+        {
+            Results.Clear();
+            SelectedResult = null;
+            IsLoading = false;
+        });
     }
 
     public void NotifySettingsApplied()
     {
         var text = LocalizationManager.GetString("Status_SettingsApplied");
-        ShowTransientMessage(text);
-        OnPropertyChanged(nameof(HotkeyHint));
-        OnPropertyChanged(nameof(ShowResultIcons));
-        OnPropertyChanged(nameof(ShowPluginBadges));
+        RunOnUiThread(() =>
+        {
+            ShowTransientMessage(text);
+            OnPropertyChanged(nameof(HotkeyHint));
+            OnPropertyChanged(nameof(ShowResultIcons));
+            OnPropertyChanged(nameof(ShowPluginBadges));
+        });
     }
 
     public void NotifyStatus(string message)
@@ -126,6 +143,38 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ShowTransientMessage(message);
     }
 
+    private void RunOnUiThread(Action action)
+    {
+        if (action is null)
+        {
+            return;
+        }
+
+        var context = _uiContext;
+        if (context is null)
+        {
+            context = SynchronizationContext.Current;
+            if (context is not null)
+            {
+                Interlocked.CompareExchange(ref _uiContext, context, null);
+            }
+        }
+
+        if (context is null || ReferenceEquals(SynchronizationContext.Current, context))
+        {
+            action();
+            return;
+        }
+
+        try
+        {
+            context.Post(_ => action(), null);
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
     private void ScheduleSearch(bool immediate = false)
     {
         if (_disposed)
@@ -135,10 +184,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         var newCts = new CancellationTokenSource();
         var previous = Interlocked.Exchange(ref _searchCts, newCts);
-        previous?.Cancel();
-        previous?.Dispose();
+        if (previous is not null)
+        {
+            try
+            {
+                previous.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
 
-        _ = SearchAsync(newCts.Token, immediate);
+            previous.Dispose();
+        }
+
+        _ = SearchAsync(immediate, newCts.Token);
     }
 
     public async Task ExecuteSelectedAsync(CancellationToken cancellationToken = default)
@@ -177,7 +236,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Execution failed for {Item} from plugin {Plugin}", selected.Title, selected.Result.Plugin.Name);
-            StatusMessage = BuildErrorStatusMessage(selected.Result, ex);
+            var message = BuildErrorStatusMessage(selected.Result, ex);
+            RunOnUiThread(() => StatusMessage = message);
         }
     }
 
@@ -187,7 +247,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         {
             Process.Start("explorer.exe", $"/select,\"{path}\"");
             var template = LocalizationManager.GetString("Status_OpenedLocation");
-            StatusMessage = string.Format(template, SelectedResult.Title);
+            var message = string.Format(template, SelectedResult.Title);
+            RunOnUiThread(() => StatusMessage = message);
         }
     }
 
@@ -224,30 +285,24 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         if (SelectedResult is null)
         {
-            SelectedResult = Results[Results.Count - 1];
+            SelectedResult = Results[^1];
             return;
         }
 
         var index = Results.IndexOf(SelectedResult);
-        if (index <= 0)
-        {
-            SelectedResult = Results[0];
-        }
-        else
-        {
-            SelectedResult = Results[index - 1];
-        }
+        SelectedResult = Results[index <= 0 ? 0 : index - 1];
     }
 
-    private async Task SearchAsync(CancellationToken cancellationToken, bool immediate)
+    private async Task SearchAsync(bool immediate, CancellationToken cancellationToken)
     {
-        var uiContext = SynchronizationContext.Current;
+        var lockTaken = false;
 
         try
         {
             await _searchLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            lockTaken = true;
 
-            uiContext?.Post(_ => IsLoading = true, null);
+            RunOnUiThread(() => IsLoading = true);
 
             if (!immediate && _debounceDelay > TimeSpan.Zero)
             {
@@ -267,11 +322,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 query);
             cancellationToken.ThrowIfCancellationRequested();
 
-            uiContext?.Post(_ =>
+            RunOnUiThread(() =>
             {
-                UpdateResults(results ?? Array.Empty<SearchResult>());
+                UpdateResults(results ?? []);
                 _logger.LogDebug("Results collection now has {ResultCount} items for query \"{Query}\".", Results.Count, query);
-            }, null);
+            });
         }
         catch (OperationCanceledException)
         {
@@ -283,14 +338,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
         finally
         {
-            if (_searchLock.CurrentCount == 0)
+            if (lockTaken)
             {
-                _searchLock.Release();
+                try
+                {
+                    _searchLock.Release();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                uiContext?.Post(_ => IsLoading = false, null);
+                RunOnUiThread(() => IsLoading = false);
             }
         }
     }
@@ -326,7 +387,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         SelectedResult = Results.FirstOrDefault();
     }
 
-    private string BuildErrorStatusMessage(SearchResult result, Exception ex)
+    private static string BuildErrorStatusMessage(SearchResult result, Exception ex)
     {
         var key = "Status_Error_ExecuteFailed";
 
@@ -369,7 +430,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             {
                 _logger.LogError(ex, "Failed to copy calculator result to clipboard for {Item}", result.Title);
                 var errorTemplate = LocalizationManager.GetString("Status_Error_ExecuteFailed");
-                StatusMessage = string.Format(errorTemplate, result.Title);
+                var errorMessage = string.Format(errorTemplate, result.Title);
+                RunOnUiThread(() => StatusMessage = errorMessage);
                 return;
             }
         }
@@ -390,12 +452,22 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private void ShowTransientMessage(string message)
     {
-        StatusMessage = message;
+        RunOnUiThread(() => StatusMessage = message);
 
         var newCts = new CancellationTokenSource();
         var previous = Interlocked.Exchange(ref _statusCts, newCts);
-        previous?.Cancel();
-        previous?.Dispose();
+        if (previous is not null)
+        {
+            try
+            {
+                previous.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            previous.Dispose();
+        }
 
         _ = ClearStatusLaterAsync(newCts.Token);
     }
@@ -404,14 +476,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(3), token);
+            await Task.Delay(TimeSpan.FromSeconds(3), token).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
             return;
         }
 
-        StatusMessage = null;
+        RunOnUiThread(() => StatusMessage = null);
     }
 
     public void Dispose()
@@ -422,9 +494,44 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         _disposed = true;
+
+        var previousSearch = Interlocked.Exchange(ref _searchCts, null);
+        if (previousSearch is not null)
+        {
+            try
+            {
+                previousSearch.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            previousSearch.Dispose();
+        }
+
+        var previousStatus = Interlocked.Exchange(ref _statusCts, null);
+        if (previousStatus is not null)
+        {
+            try
+            {
+                previousStatus.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            previousStatus.Dispose();
+        }
+
+        RunOnUiThread(() =>
+        {
+            Results.Clear();
+            SelectedResult = null;
+            IsLoading = false;
+            StatusMessage = null;
+        });
+
         _searchLock.Dispose();
-        _searchCts?.Dispose();
-        _statusCts?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

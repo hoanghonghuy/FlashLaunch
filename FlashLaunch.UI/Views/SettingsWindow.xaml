@@ -4,8 +4,8 @@
         Title="{DynamicResource Settings_Title}"
         Height="480"
         Width="780"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{DynamicResource ShellBackgroundBrush}"
@@ -343,12 +343,22 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{DynamicResource Settings_Title}"
                            VerticalAlignment="Center"
                            Margin="16,0,0,0"
                            FontWeight="SemiBold" />
                 <Button Grid.Column="1"
+                        Content="—"
+                        Width="30"
+                        Height="24"
+                        Margin="0,8,4,8"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Click="OnMinimizeClick" />
+                <Button Grid.Column="2"
                         Content="✕"
                         Width="30"
                         Height="24"
